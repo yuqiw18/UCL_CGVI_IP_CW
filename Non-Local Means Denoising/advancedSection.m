@@ -1,8 +1,8 @@
 %% Some parameters to set - make sure that your code works at image borders!
-patchSize = 2;
+patchSize = 3;
 sigma = 20; % standard deviation (different for each image!)
 h = 0.55; %decay parameter
-windowSize = 8;
+windowSize = 5;
 
 if (mod(patchSize,2) ~= 1)
     patchSize = patchSize + 1;
@@ -32,12 +32,15 @@ toc
 
 %% Let's show your results!
 
+imageNoisy = im2double(rgb2gray(imageNoisy));
+imageReference = im2double(rgb2gray(imageReference));
+
 %Show the denoised image
 figure('name', 'NL-Means Denoised Image');
 imshow(filtered);
 
 %Show difference image
-diff_image = abs(image - filtered);
+diff_image = abs(imageReference - filtered);
 figure('name', 'Difference Image');
 imshow(diff_image / max(max((diff_image))));
 
