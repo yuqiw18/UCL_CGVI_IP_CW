@@ -61,7 +61,7 @@ for offset = 1:i-1
     
     for ti = targetImageWindowStartRow:targetImageWindowEndRow
         for tj = targetImageWindowStartCol:targetImageWindowEndCol
-            if (ti+offsetsRows(offset)<windowStartRow || ti+offsetsRows(offset)>windowEndRow || tj+offsetsCols(offset)<windowStartCol || tj+offsetsCols(offset)>windowEndCol)
+            if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
                 differenceImage(ti,tj) = targetImage(ti,tj);      
             else
                 differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
