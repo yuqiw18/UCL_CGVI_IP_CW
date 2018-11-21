@@ -34,22 +34,34 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-% Calculate the offset and SSD from difference image
-for i=1:25
-for r = 1:imageRow
-    for c = 1:imageCol
+windowStartRow = row - windowLimit ;
+windowEndRow = row + windowLimit;
+windowStartCol = col - windowLimit;
+windowEndCol = col + windowLimit;
+
+% Calculate the offset
+i=1;
+for r = windowStartRow:windowEndRow
+    for c = windowStartCol:windowEndCol
     offsetsRows(i) = r-row;
-    offsetsCols(i) = c-col;  
-    differenceImage = zeros(size(targetImage));
-        if (r+offsetsRows(i)<1 || r+offsetsRows(i)>imageRow || c+offsetsCols(i)<1 || c+offsetsCols(i)>imageCol)
-            differenceImage(r,c) = targetImage(r,c);
-        else
-            differenceImage(r,c) = targetImage(r,c) - targetImage(r+offsetsRows(i),c+offsetsCols(i));
-        end
-    end
+    offsetsCols(i) = c-col;
+    i=i+1;
+    end    
 end
-    metricSSD = (differenceImage).^2;
-    [integralDiffImage, ~] = computeIntegralImage(metricSSD);
-    distances(i) = evaluateIntegralImage(integralDiffImage, row, col, patchSize);
+
+% For each offset in offsets
+for offset = 1:i-1
+    differenceImage = zeros(imageRow,imageCol);
+    for r = 1:imageRow
+        for c = 1:imageCol
+            if (r+offsetsRows(offset)<1 || r+offsetsRows(offset)>imageRow || c+offsetsCols(offset)<1 || c+offsetsCols(offset)>imageCol)
+                differenceImage(r,c) = targetImage(r,c);
+            else
+                differenceImage(r,c) = targetImage(r,c) - targetImage(r+offsetsRows(offset),c+offsetsCols(offset));
+            end
+        end
+    end 
+    differenceImageIntegral = computeIntegralImage(differenceImage.^2);
+    distances(offset) = evaluateIntegralImage(differenceImageIntegral, row, col, patchSize);
 end
 end
