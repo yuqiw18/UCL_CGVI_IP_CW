@@ -32,11 +32,13 @@ windowLimit = (searchWindowSize-1)/2;
 centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patchLimit);
 
 % Generate the window area using provided parameters
-%%%%%%%%%% BOUNDARY NOT FIXED YET %%%%%%%%%%
-windowStartRow = row - windowLimit ;
-windowEndRow = row + windowLimit;
-windowStartCol = col - windowLimit;
-windowEndCol = col + windowLimit;
+% Boundary check: ignore out of boundary area and shift the row col by
+% patch limit
+%
+windowStartRow = max(row - windowLimit, 1+patchLimit);
+windowEndRow = min(row + windowLimit, row-patchLimit);
+windowStartCol = max(col - windowLimit, 1+patchLimit);
+windowEndCol = min(col + windowLimit, col-patchLimit);
 
 % Calculate the offset and SSD
 i=1;

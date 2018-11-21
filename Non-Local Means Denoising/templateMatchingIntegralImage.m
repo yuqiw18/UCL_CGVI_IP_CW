@@ -34,10 +34,10 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-windowStartRow = row - windowLimit ;
-windowEndRow = row + windowLimit;
-windowStartCol = col - windowLimit;
-windowEndCol = col + windowLimit;
+windowStartRow = max(row - windowLimit, 1+patchLimit);
+windowEndRow = min(row + windowLimit, row-patchLimit);
+windowStartCol = max(col - windowLimit, 1+patchLimit);
+windowEndCol = min(col + windowLimit, col-patchLimit);
 
 % Calculate the offset
 i=1;

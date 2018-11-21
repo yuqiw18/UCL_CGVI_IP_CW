@@ -48,7 +48,7 @@ for r = 1:imageRow
             distances(offset) = evaluateIntegralImage(differenceImageIntegralSet{offset}, r, c, patchSize);   
             weight = computeWeighting(distances(offset),h,sigma);    
             sumOfWeight = sumOfWeight + weight;          
-            if r+offsetsRows(offset)<1 || r+offsetsRows(offset)>imageCow || c+offsetsCols(offset)<1 || c+offsetsCols(offset)>imageRow
+            if r+offsetsRows(offset)<1 || r+offsetsRows(offset)>imageCol || c+offsetsCols(offset)<1 || c+offsetsCols(offset)>imageRow
                 sumOfweightedPixel =sumOfweightedPixel+ 0;
             else
                 sumOfweightedPixel = sumOfweightedPixel + targetImage(r+offsetsRows(offset),c+offsetsCols(offset)) * weight;
