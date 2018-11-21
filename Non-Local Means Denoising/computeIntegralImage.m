@@ -1,8 +1,6 @@
 function [integralImage] = computeIntegralImage(image)  
-    [w,h,~] = size(image);
-    
-    integralImage = zeros(w,h);
-    
+    [w,h,~] = size(image);   
+    integralImage = zeros(w,h);   
     for x = 1:w
         for y = 1:h
             if (x==1 && y ==1) % Handle starting point
@@ -16,9 +14,4 @@ function [integralImage] = computeIntegralImage(image)
             end
         end
     end        
-
-    % Normalize the integral
-    normalizedIntegralImage = integralImage/integralImage(w,h);  
-    % Convert back to uint8
-    normalizedIntegralImage = uint8(normalizedIntegralImage * 255);
 end

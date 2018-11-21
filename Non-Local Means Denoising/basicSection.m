@@ -19,12 +19,13 @@ image = imread("./images/debug/alleyNoisy_sigma20.png");
 image = im2double(rgb2gray(image));
 
 % TODO - Fill out this function
-[image_ii, normalizedII] = computeIntegralImage(image);
+image_ii = computeIntegralImage(image);
 
 % TODO - Display the normalised Integral Image
 % NOTE: This is for display only, not for template matching yet!
 figure('name', 'Normalised Integral Image');
-imshow(normalizedII);
+imshow(uint8(image_ii/image_ii(size(image,1),size(image,2)) * 255));
+
 figure;
 imshow(image_ii);
 
