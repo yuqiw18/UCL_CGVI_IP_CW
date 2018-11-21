@@ -1,4 +1,4 @@
-function [integralImage, normalizedIntegralImage] = computeIntegralImage(image)  
+function [integralImage] = computeIntegralImage(image)  
     [w,h,~] = size(image);
     
     integralImage = zeros(w,h);

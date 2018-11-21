@@ -57,18 +57,16 @@ targetImageWindowEndCol = imageCol-patchLimit;
 
 % For each offset in offsets
 for offset = 1:i-1
-    differenceImage = zeros(imageRow,imageCol); 
-    
-    for ti = targetImageWindowStartRow:targetImageWindowEndRow
-        for tj = targetImageWindowStartCol:targetImageWindowEndCol
+    differenceImage = zeros(imageRow,imageCol);     
+    for ti = 1:imageRow
+        for tj = 1:imageCol
             if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
                 differenceImage(ti,tj) = targetImage(ti,tj);      
             else
                 differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
             end  
         end
-    end
-    
+    end 
     differenceImageIntegral = computeIntegralImage(differenceImage.^2);
     distances(offset) = evaluateIntegralImage(differenceImageIntegral, row, col, patchSize);
 end
