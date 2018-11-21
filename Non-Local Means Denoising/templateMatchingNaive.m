@@ -36,9 +36,14 @@ centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patc
 % patch limit
 %
 windowStartRow = max(row - windowLimit, 1+patchLimit);
-windowEndRow = min(row + windowLimit, row-patchLimit);
+windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
-windowEndCol = min(col + windowLimit, col-patchLimit);
+windowEndCol = min(col + windowLimit, imageCol-patchLimit);
+
+% windowStartRow = row - windowLimit;
+% windowEndRow = row + windowLimit;
+% windowStartCol = col - windowLimit;
+% windowEndCol = col + windowLimit;
 
 % Calculate the offset and SSD
 i=1;
