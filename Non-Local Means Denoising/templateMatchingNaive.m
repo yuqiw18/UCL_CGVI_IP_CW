@@ -1,5 +1,4 @@
  function [offsetsRows, offsetsCols, distances] = templateMatchingNaive(targetImage,row,col,patchSize,searchWindowSize)
- tic
 % This function should for each possible offset in the search window
 % centred at the current row and col, save a value for the offsets and
 % patch distances, e.g. for the offset (-1,-1)
@@ -17,7 +16,6 @@ windowRegionSize = searchWindowSize.^2;
 offsetsRows = zeros(windowRegionSize,1);
 offsetsCols = zeros(windowRegionSize,1);
 distances = randn(windowRegionSize, 1);
-
 
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
@@ -40,11 +38,6 @@ windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
 windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
-% windowStartRow = row - windowLimit;
-% windowEndRow = row + windowLimit;
-% windowStartCol = col - windowLimit;
-% windowEndCol = col + windowLimit;
-
 % Calculate the offset and SSD
 i=1;
 for r = windowStartRow:windowEndRow
@@ -57,5 +50,4 @@ for r = windowStartRow:windowEndRow
     i=i+1;
     end
 end
-toc
 end

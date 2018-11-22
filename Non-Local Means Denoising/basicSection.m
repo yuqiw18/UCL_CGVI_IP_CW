@@ -2,8 +2,8 @@
 
 % Row and column of the pixel for which we wish to find all similar patches 
 % NOTE: For this section, we pick only one patch
-row = 150;
-col = 100;
+row = 100;
+col = 150;
 
 % Patchsize - make sure your code works for different values
 patchSize = 3;
