@@ -35,35 +35,35 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-windowStartRow = max(row - windowLimit, 1+patchLimit);
-windowEndRow = min(row + windowLimit, imageRow-patchLimit);
-windowStartCol = max(col - windowLimit, 1+patchLimit);
-windowEndCol = min(col + windowLimit, imageCol-patchLimit);
+% windowStartRow = max(row - windowLimit, 1+patchLimit);
+% windowEndRow = min(row + windowLimit, imageRow-patchLimit);
+% windowStartCol = max(col - windowLimit, 1+patchLimit);
+% windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
 % Calculate the offset
 i=1;
-for r = windowStartRow:windowEndRow
-    for c = windowStartCol:windowEndCol
+for r = -windowLimit:windowLimit
+    for c = -windowLimit:windowLimit
     offsetsRows(i) = r-row;
     offsetsCols(i) = c-col;
     i=i+1;
     end    
 end
 
-targetImageWindowStartRow = 1+patchLimit;
-targetImageWindowEndRow = imageRow-patchLimit;
-targetImageWindowStartCol = 1+patchLimit;
-targetImageWindowEndCol = imageCol-patchLimit;
+% targetImageWindowStartRow = 1+patchLimit;
+% targetImageWindowEndRow = imageRow-patchLimit;
+% targetImageWindowStartCol = 1+patchLimit;
+% targetImageWindowEndCol = imageCol-patchLimit;
 
 % For each offset in offsets
 for offset = 1:i-1
     differenceImage = zeros(imageRow,imageCol);     
-    for ti = 1:imageRow
-        for tj = 1:imageCol
-            if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
-                differenceImage(ti,tj) = targetImage(ti,tj);      
+    for r = 1:imageRow
+        for c = 1:imageCol
+            if (r+offsetsRows(offset)<1 || r+offsetsRows(offset)>imageRow || c+offsetsCols(offset)<1 || c+offsetsCols(offset)>imageCol)
+                differenceImage(r,c) = targetImage(r,c);      
             else
-                differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
+                differenceImage(r,c) = targetImage(r,c) - targetImage(r+offsetsRows(offset),c+offsetsCols(offset));
             end  
         end
     end 

@@ -1,4 +1,4 @@
-function [denoisingResult] = nonLocalMeans(targetImage, sigma, h, patchSize, windowSize)
+function [result] = nonLocalMeans(targetImage, sigma, h, patchSize, windowSize)
 
 %% Non-Local Mean Denoising
 % Preallocate
