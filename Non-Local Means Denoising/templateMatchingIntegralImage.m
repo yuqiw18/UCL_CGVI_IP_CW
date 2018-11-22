@@ -23,9 +23,6 @@ offsetsRows = zeros(windowRegionSize,1);
 offsetsCols = zeros(windowRegionSize,1);
 distances = randn(windowRegionSize, 1);
 
-% Convert to double-type grayscale with normalisation
-% targetImage = im2double(rgb2gray(targetImage));
-
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 

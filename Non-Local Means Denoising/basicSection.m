@@ -29,12 +29,16 @@ imshow(uint8(image_ii/image_ii(size(image,1),size(image,2)) * 255));
 figure;
 imshow(image_ii);
 
+tic
 % TODO - Template matching for naive SSD (i.e. just loop and sum)
 [offsetsRows_naive, offsetsCols_naive, distances_naive] = templateMatchingNaive(image,row,col,patchSize,searchWindowSize);
+toc
 
+tic
 % TODO - Template matching using integral images
 [offsetsRows_ii, offsetsCols_ii, distances_ii] = templateMatchingIntegralImage(image,row,col,patchSize,searchWindowSize);
 %% Let's print out your results--------------------------------------------
+toc
 
 % NOTE: Your results for the naive and the integral image method should be
 % the same!
