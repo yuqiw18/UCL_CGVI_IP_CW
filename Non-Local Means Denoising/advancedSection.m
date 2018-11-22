@@ -1,8 +1,8 @@
 %% Some parameters to set - make sure that your code works at image borders!
-patchSize = 3;
+patchSize = 2;
 sigma = 20; % standard deviation (different for each image!)
 h = 0.55; %decay parameter
-windowSize = 5;
+windowSize = 6;
 
 if (mod(patchSize,2) ~= 1)
     patchSize = patchSize + 1;
