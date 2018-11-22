@@ -27,8 +27,13 @@ imageReference = imread('images/alleyReference.png');
 
 tic;
 %TODO - Implement the non-local means function
-filtered = nonLocalMeans(imageNoisy, sigma, h, patchSize, windowSize);
+filteredWithIntegral = nonLocalMeans(imageNoisy, sigma, h, patchSize, windowSize);
 toc
+
+% tic;
+% %TODO - Implement the non-local means function
+% filteredWithNaive = nonLocalMeansNaive(imageNoisy, sigma, h, patchSize, windowSize);
+% toc
 
 %% Let's show your results!
 
@@ -37,10 +42,10 @@ imageReference = im2double(rgb2gray(imageReference));
 
 %Show the denoised image
 figure('name', 'NL-Means Denoised Image');
-imshow(filtered);
+imshow(filteredWithIntegral);
 
 %Show difference image
-diff_image = abs(imageReference - filtered);
+diff_image = abs(imageReference - filteredWithIntegral);
 figure('name', 'Difference Image');
 imshow(diff_image / max(max((diff_image))));
 
@@ -50,7 +55,7 @@ disp('For Noisy Input');
 disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
 disp('For Denoised Result');
-[peakSNR, SNR] = psnr(filtered, imageReference);
+[peakSNR, SNR] = psnr(filteredWithIntegral, imageReference);
 disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
 %Feel free (if you like only :)) to use some other metrics (Root
