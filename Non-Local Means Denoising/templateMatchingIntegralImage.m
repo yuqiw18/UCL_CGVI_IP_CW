@@ -23,6 +23,9 @@ offsetsRows = zeros(windowRegionSize,1);
 offsetsCols = zeros(windowRegionSize,1);
 distances = randn(windowRegionSize, 1);
 
+% 
+differenceImageSet = cell(searchWindowSize, searchWindowSize);
+
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 
@@ -37,36 +40,46 @@ windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
 windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
+% targetImageWindowStartRow = 1+patchLimit;
+% targetImageWindowEndRow = imageRow-patchLimit;
+% targetImageWindowStartCol = 1+patchLimit;
+% targetImageWindowEndCol = imageCol-patchLimit;
+
 % Calculate the offset
 i=1;
+
+% For each offset in offsets
+% for offset = 1:searchWindowSize^2-1
+%     differenceImage = zeros(imageRow,imageCol); 
+%     
+%     for ti = targetImageWindowStartRow:targetImageWindowEndRow
+%         for tj = targetImageWindowStartCol:targetImageWindowEndCol
+%             if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
+%                 differenceImage(ti,tj) = targetImage(ti,tj);      
+%             else
+%                 differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
+%             end  
+%         end
+%     end    
+%     
+% end
+
+for offsetRow = -windowLimit:windowLimit
+    for offsetCol = -windowLimit:windowLimit
+        shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
+        differenceImage = shiftedImage - targetImage;
+        differenceImageSet{offsetRow+windowLimit+1,offsetCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
+    end
+end
+
 for r = windowStartRow:windowEndRow
     for c = windowStartCol:windowEndCol
     offsetsRows(i) = r-row;
     offsetsCols(i) = c-col;
+    integralImage = differenceImageSet(offsetsRows(i)+windowLimit+1, offsetsCols(i)+windowLimit+1);
+    distances(i)= evaluateIntegralImage(integralImage, r, c, patchLimit);
     i=i+1;
     end    
 end
 
-targetImageWindowStartRow = 1+patchLimit;
-targetImageWindowEndRow = imageRow-patchLimit;
-targetImageWindowStartCol = 1+patchLimit;
-targetImageWindowEndCol = imageCol-patchLimit;
-
-% For each offset in offsets
-for offset = 1:i-1
-    differenceImage = zeros(imageRow,imageCol); 
-    
-    for ti = targetImageWindowStartRow:targetImageWindowEndRow
-        for tj = targetImageWindowStartCol:targetImageWindowEndCol
-            if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
-                differenceImage(ti,tj) = targetImage(ti,tj);      
-            else
-                differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
-            end  
-        end
-    end
-    
-    differenceImageIntegral = computeIntegralImage(differenceImage.^2);
-    distances(offset) = evaluateIntegralImage(differenceImageIntegral, row, col, patchSize);
-end
 end
