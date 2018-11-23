@@ -41,6 +41,7 @@ windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 % targetImageWindowEndRow = imageRow-patchLimit;
 % targetImageWindowStartCol = 1+patchLimit;
 % targetImageWindowEndCol = imageCol-patchLimit;
+
 % For each offset in offsets
 % for offset = 1:searchWindowSize^2-1
 %     differenceImage = zeros(imageRow,imageCol); 
