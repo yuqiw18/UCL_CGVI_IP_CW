@@ -5,5 +5,6 @@ function [result] = computeWeighting(d, h, sigma, patchSize)
     % d - SSD
     % h - decay paramter
     % sigma - noise standard deviation  
-    result = exp(-max(d.^2 - 2*(sigma/255).^2,0)/h.^2);
+    result = exp(-max(d/(patchSize.^2) - 2*(sigma.^2),0)/(h.^2));
+    
 end

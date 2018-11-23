@@ -1,9 +1,6 @@
 function [result] = nonLocalMeansIntegralImage(targetImage, sigma, h, patchSize, searchWindowSize)
 
 %% Non-Local Mean Denoising - Integral
-% Preallocate
-targetImage = im2double(rgb2gray(targetImage));
-
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 
@@ -16,7 +13,6 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-
 differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
 % Create the valid area for patch generation so that no patch will overflow
@@ -24,7 +20,7 @@ differenceImageSet = cell(searchWindowSize, searchWindowSize);
 %   ---------------------------- <- TargetImage
 %   |         |PL              |
 %   |    *----------------|    |
-%   | PL |Patch generation|    | -> *: CurrentPosition e.g.(r,c)
+%   | PL |Patch Generation|    | -> *: CurrentPosition e.g.(r,c)
 %   |----|      Area      |    |
 %   |    |----------------|    |               
 %   |                          |
@@ -38,7 +34,7 @@ patchGenerationEndCol = imageCol-patchLimit;
 for currentSearchWindowRow = -windowLimit:windowLimit
     for currentSearchWindowCol = -windowLimit:windowLimit
         
-        shiftedImage = double(zeros(imageRow, imageCol));
+        shiftedImage = zeros(imageRow, imageCol);
         
         if (currentSearchWindowRow > 0 && currentSearchWindowCol > 0) 
             shiftedImage(1+currentSearchWindowRow:imageRow, 1+currentSearchWindowCol:imageCol) = targetImage(1:imageRow-currentSearchWindowRow,1:imageCol-currentSearchWindowCol);

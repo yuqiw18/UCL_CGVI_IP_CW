@@ -17,10 +17,10 @@ function [offsetsRows, offsetsCols, distances] = templateMatchingIntegralImage(t
 
 %% Template Matching (Integral Image)
 % Preallocate
-windowRegionSize = searchWindowSize.^2;
-offsetsRows = zeros(windowRegionSize,1);
-offsetsCols = zeros(windowRegionSize,1);
-distances = zeros(windowRegionSize, 1);
+% windowRegionSize = searchWindowSize.^2;
+% offsetsRows = zeros(windowRegionSize,1);
+% offsetsCols = zeros(windowRegionSize,1);
+% distances = zeros(windowRegionSize, 1);
 differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
 % Get row and col from original image 

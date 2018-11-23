@@ -12,10 +12,10 @@
 
 %% Template Matching (Naive)
 % Preallocate
-windowRegionSize = searchWindowSize.^2;
-offsetsRows = zeros(windowRegionSize,1);
-offsetsCols = zeros(windowRegionSize,1);
-distances = zeros(windowRegionSize, 1);
+% windowRegionSize = searchWindowSize.^2;
+% offsetsRows = zeros(windowRegionSize,1);
+% offsetsCols = zeros(windowRegionSize,1);
+%distances = zeros(windowRegionSize, 1);
 
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
