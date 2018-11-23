@@ -38,7 +38,17 @@ patchGenerationEndCol = imageCol-patchLimit;
 for currentSearchWindowRow = -windowLimit:windowLimit
     for currentSearchWindowCol = -windowLimit:windowLimit
         
-        shiftedImage = imtranslate(targetImage,[currentSearchWindowCol, currentSearchWindowRow]); 
+        shiftedImage = double(zeros(imageRow, imageCol));
+        
+        if (currentSearchWindowRow > 0 && currentSearchWindowCol > 0) 
+            shiftedImage(1+currentSearchWindowRow:imageRow, 1+currentSearchWindowCol:imageCol) = targetImage(1:imageRow-currentSearchWindowRow,1:imageCol-currentSearchWindowCol);
+        elseif (currentSearchWindowRow <= 0 && currentSearchWindowCol <= 0 )
+            shiftedImage(1:imageRow+currentSearchWindowRow, 1:imageCol+currentSearchWindowCol) = targetImage(1-currentSearchWindowRow:imageRow,1-currentSearchWindowCol:imageCol);
+        elseif (currentSearchWindowRow > 0 && currentSearchWindowCol <= 0)
+            shiftedImage(1+currentSearchWindowRow:imageRow, 1:imageCol+currentSearchWindowCol) = targetImage(1:imageRow-currentSearchWindowRow,1-currentSearchWindowCol:imageCol);
+        elseif (currentSearchWindowRow <=0 && currentSearchWindowCol > 0)
+            shiftedImage(1:imageRow+currentSearchWindowRow, 1+currentSearchWindowCol:imageCol) = targetImage(1-currentSearchWindowRow:imageRow,1:imageCol-currentSearchWindowCol);
+        end
         
         % Calculate the difference image
         differenceImage = shiftedImage - targetImage;

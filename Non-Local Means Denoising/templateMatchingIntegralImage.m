@@ -48,20 +48,20 @@ for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
         
         % 
-        shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
+        %shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
                
         % Shift image by offsets
-%         shiftedImage = zeros(imageRow, imageCol);
-%         
-%         if (offsetRow > 0 && offsetCol > 0)
-%             shiftedImage(1:imageRow-offsetRow,1:imageCol-offsetCol) = targetImage(1+offsetRow:imageRow, 1+offsetCol:imageCol);
-%         elseif (offsetRow <= 0 && offsetCol <= 0 )
-%             shiftedImage(1-offsetRow:imageRow,1-offsetCol:imageCol) = targetImage(1:imageRow+offsetRow, 1:imageCol+offsetCol);
-%         elseif (offsetRow > 0 && offsetCol <= 0)
-%             shiftedImage(1:imageRow-offsetRow,1-offsetCol:imageCol) = targetImage(1+offsetRow:imageRow, 1:imageCol+offsetCol);
-%         elseif (offsetRow <=0 && offsetCol > 0)
-%             shiftedImage(1-offsetRow:imageRow,1:imageCol-offsetCol) = targetImage(1:imageRow+offsetRow, 1+offsetCol:imageCol);
-%         end
+        shiftedImage = double(zeros(imageRow, imageCol));
+        
+        if (offsetRow > 0 && offsetCol > 0) 
+            shiftedImage(1+offsetRow:imageRow, 1+offsetCol:imageCol) = targetImage(1:imageRow-offsetRow,1:imageCol-offsetCol);
+        elseif (offsetRow <= 0 && offsetCol <= 0 )
+            shiftedImage(1:imageRow+offsetRow, 1:imageCol+offsetCol) = targetImage(1-offsetRow:imageRow,1-offsetCol:imageCol);
+        elseif (offsetRow > 0 && offsetCol <= 0)
+            shiftedImage(1+offsetRow:imageRow, 1:imageCol+offsetCol) = targetImage(1:imageRow-offsetRow,1-offsetCol:imageCol);
+        elseif (offsetRow <=0 && offsetCol > 0)
+            shiftedImage(1:imageRow+offsetRow, 1+offsetCol:imageCol) = targetImage(1-offsetRow:imageRow,1:imageCol-offsetCol);
+        end
         
         % Calculate the difference image
         differenceImage = shiftedImage - targetImage;
@@ -82,7 +82,7 @@ for r = windowStartRow:windowEndRow
     integralImage = differenceImageSet{offsetsRows(offsetCounter)+windowLimit+1, offsetsCols(offsetCounter)+windowLimit+1};
     
     % Compute the sum of squared differences
-    distances(offsetCounter)= evaluateIntegralImage(integralImage, r, c, patchSize);
+    distances(offsetCounter)= evaluateIntegralImage(integralImage, r+patchLimit, c+patchLimit, patchSize);
     
     offsetCounter=offsetCounter+1;
     end    

@@ -4,11 +4,11 @@ function [integralImage] = computeIntegralImage(image)
  % According to the concept
  % Still relatively efficient
  % Shift the top and left by 1
- [imageRow,imageCol,~] = size(image);   
- shiftTop = zeros(1, imageCol+1);
- shiftLeft = zeros(imageRow,1);
- image = cat(2, shiftLeft, image);
- image = cat(1, shiftTop, image);
+%  [imageRow,imageCol,~] = size(image);   
+%  shiftTop = zeros(1, imageCol+1);
+%  shiftLeft = zeros(imageRow,1);
+%  image = cat(2, shiftLeft, image);
+%  image = cat(1, shiftTop, image);
  [imageRow,imageCol,~] = size(image);   
  
  % Preallocate
