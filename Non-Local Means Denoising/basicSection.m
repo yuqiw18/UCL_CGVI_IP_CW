@@ -16,7 +16,7 @@ searchWindowSize = 5;
 
 % TODO - Load Image
 image = imread("./images/debug/alleyNoisy_sigma20.png");
-image = im2double(rgb2gray(image));
+image = double(rgb2gray(image));
 
 % TODO - Fill out this function
 image_ii = computeIntegralImage(image);

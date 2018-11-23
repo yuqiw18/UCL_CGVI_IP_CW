@@ -1,16 +1,15 @@
-function [offsetsRows, offsetsCols, distances] = templateMatchingIntegralImage(targetImage,row,col,patchSize, searchWindowSize)
-tic
+function [offsetsRows, offsetsCols, distances] = templateMatchingIntegralImage(targetImage ,row, col, patchSize, searchWindowSize)
 % This function should for each possible offset in the search window
 % centred at the current row and col, save a value for the offsets and
 % patch distances, e.g. for the offset (-1,-1)
 % offsetsX(1) = -1;
 % offsetsY(1) = -1;
 % distances(1) = 0.125;
-
+% 
 % The distance is simply the SSD over patches of size patchSize between the
 % 'template' patch centred at row and col and a patch shifted by the
 % current offset
-
+% 
 % This time, use the integral image method!
 % NOTE: Use the 'computeIntegralImage' function developed earlier to
 % calculate your integral images
@@ -21,9 +20,7 @@ tic
 windowRegionSize = searchWindowSize.^2;
 offsetsRows = zeros(windowRegionSize,1);
 offsetsCols = zeros(windowRegionSize,1);
-distances = randn(windowRegionSize, 1);
-
-% 
+distances = zeros(windowRegionSize, 1);
 differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
 % Get row and col from original image 
@@ -44,10 +41,6 @@ windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 % targetImageWindowEndRow = imageRow-patchLimit;
 % targetImageWindowStartCol = 1+patchLimit;
 % targetImageWindowEndCol = imageCol-patchLimit;
-
-% Calculate the offset
-i=1;
-
 % For each offset in offsets
 % for offset = 1:searchWindowSize^2-1
 %     differenceImage = zeros(imageRow,imageCol); 
@@ -64,10 +57,13 @@ i=1;
 %     
 % end
 
+% Calculate the offset
+i=1;
+
 for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
         shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
-        differenceImage = shiftedImage - targetImage;
+        differenceImage = double(shiftedImage - targetImage);
         differenceImageSet{offsetRow+windowLimit+1,offsetCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
     end
 end
@@ -76,10 +72,9 @@ for r = windowStartRow:windowEndRow
     for c = windowStartCol:windowEndCol
     offsetsRows(i) = r-row;
     offsetsCols(i) = c-col;
-    integralImage = differenceImageSet(offsetsRows(i)+windowLimit+1, offsetsCols(i)+windowLimit+1);
-    distances(i)= evaluateIntegralImage(integralImage, r, c, patchLimit);
+    integralImage = differenceImageSet{offsetsRows(i)+windowLimit+1, offsetsCols(i)+windowLimit+1};
+    distances(i)= evaluateIntegralImage(integralImage, r, c, patchSize);
     i=i+1;
     end    
 end
-
 end
