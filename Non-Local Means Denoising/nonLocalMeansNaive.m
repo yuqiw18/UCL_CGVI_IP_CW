@@ -20,9 +20,9 @@ windowLimit = (searchWindowSize-1)/2;
 % to the outside of image 
 %   ---------------------------- <- TargetImage
 %   |         |PL              |
-%   |    |----------------|    |
+%   |    *----------------|    |
 %   | PL |Patch generation|    |
-%   |----|      Area      |    |
+%   |----|      Area      |    | -> *: CurrentPosition e.g.(r,c)
 %   |    |----------------|    |               
 %   |                          |
 %   ---------------------------- -> PL: PatchLimit (Distance)

@@ -49,6 +49,19 @@ for offsetRow = -windowLimit:windowLimit
         
         % 
         shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
+               
+        % Shift image by offsets
+%         shiftedImage = zeros(imageRow, imageCol);
+%         
+%         if (offsetRow > 0 && offsetCol > 0)
+%             shiftedImage(1:imageRow-offsetRow,1:imageCol-offsetCol) = targetImage(1+offsetRow:imageRow, 1+offsetCol:imageCol);
+%         elseif (offsetRow <= 0 && offsetCol <= 0 )
+%             shiftedImage(1-offsetRow:imageRow,1-offsetCol:imageCol) = targetImage(1:imageRow+offsetRow, 1:imageCol+offsetCol);
+%         elseif (offsetRow > 0 && offsetCol <= 0)
+%             shiftedImage(1:imageRow-offsetRow,1-offsetCol:imageCol) = targetImage(1+offsetRow:imageRow, 1:imageCol+offsetCol);
+%         elseif (offsetRow <=0 && offsetCol > 0)
+%             shiftedImage(1-offsetRow:imageRow,1:imageCol-offsetCol) = targetImage(1:imageRow+offsetRow, 1+offsetCol:imageCol);
+%         end
         
         % Calculate the difference image
         differenceImage = shiftedImage - targetImage;
