@@ -64,7 +64,7 @@ i=1;
 for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
         shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
-        differenceImage = double(shiftedImage - targetImage);
+        differenceImage = shiftedImage - targetImage;
         differenceImageSet{offsetRow+windowLimit+1,offsetCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
     end
 end

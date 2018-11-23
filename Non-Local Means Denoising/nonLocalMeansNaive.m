@@ -14,15 +14,6 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-% Generate the window area using provided parameters
-% Boundary check: ignore out of boundary area and shift the row col by
-% patch limit
-%
-windowStartRow = max(r - windowLimit, 1+patchLimit);
-windowEndRow = min(r + windowLimit, imageRow-patchLimit);
-windowStartCol = max(c - windowLimit, 1+patchLimit);
-windowEndCol = min(c + windowLimit, imageCol-patchLimit);
-
 % Create the valid area for patch generation so that no patch will overflow
 % to the outside of image 
 %   ---------------------------- <- TargetImage
@@ -40,7 +31,20 @@ patchGenerationStartCol = 1+patchLimit;
 patchGenerationEndCol = imageCol-patchLimit;
      
 for r = patchGenerationStartRow:patchGenerationEndRow  
+    
+    % Generate the window area using provided parameters
+    % Boundary check: ignore out of boundary area and shift the row col by
+    % patch limit
+    %
+    windowStartRow = max(r - windowLimit, 1+patchLimit);
+    windowEndRow = min(r + windowLimit, imageRow-patchLimit);
+    
     for c = patchGenerationStartCol:patchGenerationEndCol  
+        
+        
+        windowStartCol = max(c - windowLimit, 1+patchLimit);
+        windowEndCol = min(c + windowLimit, imageCol-patchLimit);
+        
         % Get the current patch centered at r,c
         centralPatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);                 
         pixelWeightSum = 0;
