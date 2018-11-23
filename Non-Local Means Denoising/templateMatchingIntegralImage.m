@@ -32,50 +32,46 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
+% Generate the window area using provided parameters
+% Boundary check: ignore out of boundary area and shift the row col by
+% patch limit
+
 windowStartRow = max(row - windowLimit, 1+patchLimit);
 windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
 windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
-% targetImageWindowStartRow = 1+patchLimit;
-% targetImageWindowEndRow = imageRow-patchLimit;
-% targetImageWindowStartCol = 1+patchLimit;
-% targetImageWindowEndCol = imageCol-patchLimit;
-
-% For each offset in offsets
-% for offset = 1:searchWindowSize^2-1
-%     differenceImage = zeros(imageRow,imageCol); 
-%     
-%     for ti = targetImageWindowStartRow:targetImageWindowEndRow
-%         for tj = targetImageWindowStartCol:targetImageWindowEndCol
-%             if (ti+offsetsRows(offset)<targetImageWindowStartRow || ti+offsetsRows(offset)>targetImageWindowEndRow || tj+offsetsCols(offset)<targetImageWindowStartCol || tj+offsetsCols(offset)>targetImageWindowEndCol)
-%                 differenceImage(ti,tj) = targetImage(ti,tj);      
-%             else
-%                 differenceImage(ti,tj) = targetImage(ti,tj) - targetImage(ti+offsetsRows(offset),tj+offsetsCols(offset));
-%             end  
-%         end
-%     end    
-%     
-% end
-
 % Calculate the offset
-i=1;
+offsetCounter=1;
 
 for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
+        
+        % 
         shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
+        
+        % Calculate the difference image
         differenceImage = shiftedImage - targetImage;
+        
+        % Store the difference image 
         differenceImageSet{offsetRow+windowLimit+1,offsetCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
     end
 end
 
 for r = windowStartRow:windowEndRow
     for c = windowStartCol:windowEndCol
-    offsetsRows(i) = r-row;
-    offsetsCols(i) = c-col;
-    integralImage = differenceImageSet{offsetsRows(i)+windowLimit+1, offsetsCols(i)+windowLimit+1};
-    distances(i)= evaluateIntegralImage(integralImage, r, c, patchSize);
-    i=i+1;
+    
+    % Calculate the offset
+    offsetsRows(offsetCounter) = r-row;
+    offsetsCols(offsetCounter) = c-col;
+    
+    % Get the patch at this position using integral image
+    integralImage = differenceImageSet{offsetsRows(offsetCounter)+windowLimit+1, offsetsCols(offsetCounter)+windowLimit+1};
+    
+    % Compute the sum of squared differences
+    distances(offsetCounter)= evaluateIntegralImage(integralImage, r, c, patchSize);
+    
+    offsetCounter=offsetCounter+1;
     end    
 end
 end

@@ -55,22 +55,4 @@ end
 % Calculate the patch sum
 patchSum = L3 - L2 - L4 + L1;
 
-% %% Simplified
-% % rowLeftLimit = max(row-patchLimit-1, 1);
-% % rowRightLimit = min(row+patchLimit, imageRow);
-% % colTopLimit = max(col-patchLimit-1, 1);
-% % colBottomLimit = min(col+patchLimit, imageCol);
-% 
-% rowLeftLimit = max(row-patchLimit-1, 1);
-% rowRightLimit = min(row+patchLimit, imageRow);
-% colTopLimit = max(col-patchLimit-1, 1);
-% colBottomLimit = min(col+patchLimit, imageCol);
-% 
-% L1 = integralImage(rowLeftLimit, colTopLimit);
-% L2 = integralImage(rowLeftLimit, colBottomLimit);
-% L3 = integralImage(rowRightLimit, colBottomLimit);
-% L4 = integralImage(rowRightLimit, colTopLimit);
-% 
-% % Calculate the patch sum
-% patchSum = L3 - L2 - L4 + L1;
 end

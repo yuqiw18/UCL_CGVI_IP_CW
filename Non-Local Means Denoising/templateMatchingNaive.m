@@ -32,22 +32,29 @@ centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patc
 % Generate the window area using provided parameters
 % Boundary check: ignore out of boundary area and shift the row col by
 % patch limit
-%
+
 windowStartRow = max(row - windowLimit, 1+patchLimit);
 windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
 windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
 % Calculate the offset and SSD
-i=1;
+offsetCounter=1;
+
 for r = windowStartRow:windowEndRow
     for c = windowStartCol:windowEndCol
-    offsetsRows(i) = r-row;
-    offsetsCols(i) = c-col;
+        
+    % Calculate the offset
+    offsetsRows(offsetCounter) = r-row;
+    offsetsCols(offsetCounter) = c-col;
+    
+    % Get the patch at this position
     slidePatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);
-    % Sum of Squared Differences
-    distances(i) = sum((slidePatch - centralPatch).^2, 'all'); 
-    i=i+1;
+    
+    % Compute the sum of squared differences
+    distances(offsetCounter) = sum((slidePatch - centralPatch).^2, 'all'); 
+    
+    offsetCounter=offsetCounter+1;
     end
 end
 end

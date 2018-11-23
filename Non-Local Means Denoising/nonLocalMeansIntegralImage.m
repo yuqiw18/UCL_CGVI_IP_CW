@@ -23,8 +23,8 @@ differenceImageSet = cell(searchWindowSize, searchWindowSize);
 % to the outside of image 
 %   ---------------------------- <- TargetImage
 %   |         |PL              |
-%   |    |----------------|    |
-%   | PL |Patch generation|    |
+%   |    *----------------|    |
+%   | PL |Patch generation|    | -> *: CurrentPosition e.g.(r,c)
 %   |----|      Area      |    |
 %   |    |----------------|    |               
 %   |                          |
@@ -37,8 +37,13 @@ patchGenerationEndCol = imageCol-patchLimit;
 
 for currentSearchWindowRow = -windowLimit:windowLimit
     for currentSearchWindowCol = -windowLimit:windowLimit
+        
         shiftedImage = imtranslate(targetImage,[currentSearchWindowCol, currentSearchWindowRow]); 
+        
+        % Calculate the difference image
         differenceImage = shiftedImage - targetImage;
+        
+        % Store the difference image 
         differenceImageSet{currentSearchWindowRow+windowLimit+1,currentSearchWindowCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
     end
 end
@@ -55,7 +60,7 @@ for r = patchGenerationStartRow:patchGenerationEndRow
         windowStartCol = max(c - windowLimit, 1+patchLimit);
         windowEndCol = min(c + windowLimit, imageCol-patchLimit);
 
-        % the same values in the other non local means version
+        % Reset the weights
         pixelWeightSum = 0;
         weightSum = 0;
 
@@ -68,23 +73,22 @@ for r = patchGenerationStartRow:patchGenerationEndRow
 
                 % retrive the Integral Image for the corresponding
                 % offset
-                integral_image = differenceImageSet{offsetRow+windowLimit+1, offsetCol+windowLimit+1};
+                integralImage = differenceImageSet{offsetRow+windowLimit+1, offsetCol+windowLimit+1};
 
                 % Compute the distance (how is explained inside the function)
-                distance = evaluateIntegralImage(integral_image, currentSearchWindowRow, currentSearchWindowCol, patchSize);
+                distance = evaluateIntegralImage(integralImage, currentSearchWindowRow, currentSearchWindowCol, patchSize);
 
-                %compute the weights
-                weight = computeWeighting(distance, h, sigma, patchSize);
+                % Compute the current weight
+                currentWeight = computeWeighting(distance, h, sigma, patchSize);
 
                 % compute the weighted sum
-                pixelWeightSum = pixelWeightSum + targetImage(currentSearchWindowRow,currentSearchWindowCol) * weight;
+                pixelWeightSum = pixelWeightSum + targetImage(currentSearchWindowRow,currentSearchWindowCol) * currentWeight;
 
                 % keep adding the weights in order to normalize.
-                weightSum = weightSum + weight;
+                weightSum = weightSum + currentWeight;
             end
         end
 
-        % store the resulting denoised pixel at location (row, col)
         result(r, c) = pixelWeightSum/weightSum;
     end
 end

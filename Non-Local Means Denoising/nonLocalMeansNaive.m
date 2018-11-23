@@ -42,24 +42,25 @@ for r = patchGenerationStartRow:patchGenerationEndRow
     windowEndRow = min(r + windowLimit, imageRow-patchLimit);
     
     for c = patchGenerationStartCol:patchGenerationEndCol  
-        
-        
+             
         windowStartCol = max(c - windowLimit, 1+patchLimit);
         windowEndCol = min(c + windowLimit, imageCol-patchLimit);
         
         % Get the current patch centered at r,c
-        centralPatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);                 
+        centralPatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);      
+        
+        % Reset the weights
         pixelWeightSum = 0;
         weightSum = 0;
 
-        % Loop over the clipped searchWindow
+        % Loop through all the pixels in the SearchWindow 
         for currentSearchWindowRow = windowStartRow : windowEndRow
             for currentSearchWindowCol = windowStartCol : windowEndCol
 
-                % Retrieve the 
+                % Retrieve the patch at current position
                 slidePatch = double(targetImage(currentSearchWindowRow-patchLimit:currentSearchWindowRow+patchLimit, currentSearchWindowCol-patchLimit:currentSearchWindowCol+patchLimit));
 
-                % Calculate the SSD
+                % Compute the sum of squared differences
                 distance = sum((slidePatch - centralPatch).^2, 'all'); 
 
                 % Compute the current weight
@@ -72,6 +73,7 @@ for r = patchGenerationStartRow:patchGenerationEndRow
                 weightSum = weightSum + currentWeight;
             end
         end
+        
         result(r, c) = pixelWeightSum/weightSum;
     end
 end
