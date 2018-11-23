@@ -1,11 +1,15 @@
 function [result] = nonLocalMeansIntegralImage(targetImage, sigma, h, patchSize, searchWindowSize)
 
 %% Non-Local Mean Denoising - Integral
+% 
+targetImage = double(rgb2gray(targetImage));
+
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 
 % Preallocate
-result = zeros(imageRow, imageCol);
+% result = double(zeros(imageRow, imageCol));
+result = targetImage;
 
 % Determine the patch boundary with respect to the center point
 patchLimit = (patchSize-1)/2;
@@ -34,7 +38,7 @@ patchGenerationEndCol = imageCol-patchLimit;
 for currentSearchWindowRow = -windowLimit:windowLimit
     for currentSearchWindowCol = -windowLimit:windowLimit
         
-        shiftedImage = zeros(imageRow, imageCol);
+        shiftedImage = double(zeros(imageRow, imageCol));
         
         if (currentSearchWindowRow > 0 && currentSearchWindowCol > 0) 
             shiftedImage(1+currentSearchWindowRow:imageRow, 1+currentSearchWindowCol:imageCol) = targetImage(1:imageRow-currentSearchWindowRow,1:imageCol-currentSearchWindowCol);
@@ -58,9 +62,9 @@ for r = patchGenerationStartRow:patchGenerationEndRow
     % Generate the window area using provided parameters
     % Boundary check: ignore out of boundary area and shift the row col by
     % patch limit
-    %
     windowStartRow = max(r - windowLimit, 1+patchLimit);
     windowEndRow = min(r + windowLimit, imageRow-patchLimit);
+    
     for c = patchGenerationStartCol:patchGenerationEndCol
         
         windowStartCol = max(c - windowLimit, 1+patchLimit);
@@ -82,7 +86,7 @@ for r = patchGenerationStartRow:patchGenerationEndRow
                 integralImage = differenceImageSet{offsetRow+windowLimit+1, offsetCol+windowLimit+1};
 
                 % Compute the distance (how is explained inside the function)
-                distance = evaluateIntegralImage(integralImage, currentSearchWindowRow, currentSearchWindowCol, patchSize);
+                distance = evaluateIntegralImage(integralImage, currentSearchWindowRow+patchLimit, currentSearchWindowCol+patchLimit, patchSize);
 
                 % Compute the current weight
                 currentWeight = computeWeighting(distance, h, sigma, patchSize);
@@ -94,7 +98,8 @@ for r = patchGenerationStartRow:patchGenerationEndRow
                 weightSum = weightSum + currentWeight;
             end
         end
-
+        
+        % Denoised position
         result(r, c) = pixelWeightSum/weightSum;
     end
 end

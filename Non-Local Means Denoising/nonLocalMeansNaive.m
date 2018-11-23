@@ -21,7 +21,7 @@ windowLimit = (searchWindowSize-1)/2;
 %   ---------------------------- <- TargetImage
 %   |         |PL              |
 %   |    *----------------|    |
-%   | PL |Patch generation|    |
+%   | PL |Patch Generation|    |
 %   |----|      Area      |    | -> *: CurrentPosition e.g.(r,c)
 %   |    |----------------|    |               
 %   |                          |

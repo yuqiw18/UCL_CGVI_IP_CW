@@ -21,6 +21,7 @@ function [offsetsRows, offsetsCols, distances] = templateMatchingIntegralImage(t
 % offsetsRows = zeros(windowRegionSize,1);
 % offsetsCols = zeros(windowRegionSize,1);
 % distances = zeros(windowRegionSize, 1);
+
 differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
 % Get row and col from original image 

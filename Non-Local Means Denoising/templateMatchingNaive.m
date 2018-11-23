@@ -11,6 +11,7 @@
 % current offset
 
 %% Template Matching (Naive)
+
 % Preallocate
 % windowRegionSize = searchWindowSize.^2;
 % offsetsRows = zeros(windowRegionSize,1);

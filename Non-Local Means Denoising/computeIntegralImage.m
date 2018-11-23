@@ -1,14 +1,8 @@
 function [integralImage] = computeIntegralImage(image)
 %% Hard Coded Method 
-
  % According to the concept
  % Still relatively efficient
- % Shift the top and left by 1
-%  [imageRow,imageCol,~] = size(image);   
-%  shiftTop = zeros(1, imageCol+1);
-%  shiftLeft = zeros(imageRow,1);
-%  image = cat(2, shiftLeft, image);
-%  image = cat(1, shiftTop, image);
+ 
  [imageRow,imageCol,~] = size(image);   
  
  % Preallocate
@@ -49,12 +43,6 @@ function [integralImage] = computeIntegralImage(image)
 
 % % As suggested in lecture slide p56 - use cumulative sum
 % % The efficiency is almost same as the hard coded method though
-% % Shift the top and left by 1
-% [imageRow,imageCol,~] = size(image);   
-% shiftTop = zeros(1, imageCol+1);
-% shiftLeft = zeros(imageRow,1);
-% image = cat(2, shiftLeft, image);
-% image = cat(1, shiftTop, image);
 % [imageRow,imageCol,~] = size(image);   
 % integralImage = zeros(imageRow,imageCol);
 % 
