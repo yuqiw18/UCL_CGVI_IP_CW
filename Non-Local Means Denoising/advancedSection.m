@@ -2,7 +2,7 @@
 patchSize = 2;
 sigma = 20; % standard deviation (different for each image!)
 h = 0.55; %decay parameter
-windowSize = 6;
+windowSize = 8;
 
 if (mod(patchSize,2) ~= 1)
     patchSize = patchSize + 1;
@@ -25,15 +25,17 @@ end
 imageNoisy = imread('images/alleyNoisy_sigma20.png');
 imageReference = imread('images/alleyReference.png');
 
+disp('Efficiency - Integral');
 tic;
 %TODO - Implement the non-local means function
-filteredWithIntegral = nonLocalMeans(imageNoisy, sigma, h, patchSize, windowSize);
+filteredWithIntegral = nonLocalMeansIntegralImage(imageNoisy, sigma, h, patchSize, windowSize);
 toc
 
-% tic;
-% %TODO - Implement the non-local means function
-% filteredWithNaive = nonLocalMeansNaive(imageNoisy, sigma, h, patchSize, windowSize);
-% toc
+disp('Efficiency - Naive');
+tic;
+%TODO - Implement the non-local means function
+filteredWithNaive = nonLocalMeansNaive(imageNoisy, sigma, h, patchSize, windowSize);
+toc
 
 %% Let's show your results!
 
@@ -41,11 +43,20 @@ imageNoisy = im2double(rgb2gray(imageNoisy));
 imageReference = im2double(rgb2gray(imageReference));
 
 %Show the denoised image
-figure('name', 'NL-Means Denoised Image');
+figure('name', 'NL-Means Denoised Image - Integral');
 imshow(filteredWithIntegral);
+
+%Show the denoised image
+figure('name', 'NL-Means Denoised Image - Naive');
+imshow(filteredWithNaive);
 
 %Show difference image
 diff_image = abs(imageReference - filteredWithIntegral);
+figure('name', 'Difference Image');
+imshow(diff_image / max(max((diff_image))));
+
+%Show difference image
+diff_image = abs(imageReference - filteredWithNaive);
 figure('name', 'Difference Image');
 imshow(diff_image / max(max((diff_image))));
 
@@ -54,8 +65,12 @@ disp('For Noisy Input');
 [peakSNR, SNR] = psnr(imageNoisy, imageReference);
 disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
-disp('For Denoised Result');
+disp('For Denoised Result - Integral');
 [peakSNR, SNR] = psnr(filteredWithIntegral, imageReference);
+disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
+
+disp('For Denoised Result - Naive');
+[peakSNR, SNR] = psnr(filteredWithNaive, imageReference);
 disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
 %Feel free (if you like only :)) to use some other metrics (Root

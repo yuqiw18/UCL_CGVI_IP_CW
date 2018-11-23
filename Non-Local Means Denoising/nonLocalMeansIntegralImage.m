@@ -2,6 +2,7 @@ function [result] = nonLocalMeansIntegralImage(targetImage, sigma, h, patchSize,
 
 %% Non-Local Mean Denoising - Integral
 % Preallocate
+targetImage = im2double(rgb2gray(targetImage));
 
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
@@ -15,8 +16,8 @@ patchLimit = (patchSize-1)/2;
 % Determine the window boundary with respect to the center point
 windowLimit = (searchWindowSize-1)/2;
 
-differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
+differenceImageSet = cell(searchWindowSize, searchWindowSize);
 
 % Create the valid area for patch generation so that no patch will overflow
 % to the outside of image 
@@ -87,9 +88,4 @@ for r = patchGenerationStartRow:patchGenerationEndRow
         result(r, c) = pixelWeightSum/weightSum;
     end
 end
-
-% We need to normalize to actually see something otherwise is going to
-% bee too bright.
-%result = 255*(result - min(result(:))) / (max(result(:)) - min(result(:)));
-%result = uint8(result);
 end

@@ -2,11 +2,13 @@ function [result] = nonLocalMeansNaive(targetImage, sigma, h, patchSize, searchW
 
 %% Non-Local Mean Denoising - Naive
 
+targetImage = im2double(rgb2gray(targetImage));
+
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 
 % Preallocate
-result = zeors(imageRow, imageCol);
+result = zeros(imageRow, imageCol);
 
 % Determine the patch boundary with respect to the center point
 patchLimit = (patchSize-1)/2;

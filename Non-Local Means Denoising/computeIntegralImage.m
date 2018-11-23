@@ -1,6 +1,7 @@
 function [integralImage] = computeIntegralImage(image)
 %% Hard Coded
-% This part was done before doing late stage optimisation
+% This part was done before I fuuly understood the concept
+% It works but is not efficient
 % % Shift the top and left by 1
 % [imageRow,imageCol,~] = size(image);   
 % shiftTop = zeros(1, imageCol+1);
@@ -29,8 +30,13 @@ function [integralImage] = computeIntegralImage(image)
 
 %% More Efficient Way
 % As described in lecture slide p56 - use cumulative sum
-image = padarray(image, [1 1], 0, 'pre');
-[imageRow, imageCol, ~] = size(image);
+% Shift the top and left by 1
+[imageRow,imageCol,~] = size(image);   
+shiftTop = zeros(1, imageCol+1);
+shiftLeft = zeros(imageRow,1);
+image = cat(2, shiftLeft, image);
+image = cat(1, shiftTop, image);
+[imageRow,imageCol,~] = size(image);   
 integralImage = zeros(imageRow,imageCol);
 
 % Calculate the integral image using recureence relation
