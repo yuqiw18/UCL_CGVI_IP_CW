@@ -1,6 +1,6 @@
 %% Some parameters to set - make sure that your code works at image borders!
 patchSize = 3;
-sigma = 12; % standard deviation (different for each image!)
+sigma = 20; % standard deviation (different for each image!)
 h = 0.55; %decay parameter
 windowSize = 5;
 
@@ -22,14 +22,14 @@ end
 %indicated in the image file names)
 
 %REPLACE THIS
-imageNoisy = imread('images/alleyNoisy_sigma20.png');
-imageReference = imread('images/alleyReference.png');
+imageNoisy = imread('images/debug/alleyNoisy_sigma20.png');
+imageReference = imread('images/debug/alleyReference.png');
 
-% disp('Efficiency - Integral');
-% tic;
-% %TODO - Implement the non-local means function
-% filteredWithIntegral = nonLocalMeansIntegralImage(imageNoisy, sigma, h, patchSize, windowSize);
-% toc
+disp('Efficiency - Integral');
+tic;
+%TODO - Implement the non-local means function
+filteredWithIntegral = nonLocalMeansIntegralImage(imageNoisy, sigma, h, patchSize, windowSize);
+toc
 
 disp('Efficiency - Naive');
 tic;
@@ -43,17 +43,17 @@ imageNoisy = double(rgb2gray(imageNoisy));
 imageReference = double(rgb2gray(imageReference));
 
 %Show the denoised image
-% figure('name', 'NL-Means Denoised Image - Integral');
-% imshow(uint8(filteredWithIntegral));
+figure('name', 'NL-Means Denoised Image - Integral');
+imshow(uint8(filteredWithIntegral));
 
 %Show the denoised image
 figure('name', 'NL-Means Denoised Image - Naive');
 imshow(uint8(filteredWithNaive));
 
 %Show difference image
-% diff_image = abs(imageNoisy - filteredWithIntegral);
-% figure('name', 'Difference Image - Integral');
-% imshow(diff_image / max(max((diff_image))));
+diff_image = abs(imageNoisy - filteredWithIntegral);
+figure('name', 'Difference Image - Integral');
+imshow(diff_image / max(max((diff_image))));
 
 %Show difference image
 diff_image = abs(imageNoisy - filteredWithNaive);
@@ -65,9 +65,9 @@ disp('For Noisy Input');
 [peakSNR, SNR] = psnr(uint8(imageNoisy), uint8(imageReference));
 disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
-% disp('For Denoised Result - Integral');
-% [peakSNR, SNR] = psnr(uint8(filteredWithIntegral), uint8(imageReference));
-% disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
+disp('For Denoised Result - Integral');
+[peakSNR, SNR] = psnr(uint8(filteredWithIntegral), uint8(imageReference));
+disp(['SNR: ', num2str(SNR, 10), '; PSNR: ', num2str(peakSNR, 10)]);
 
 disp('For Denoised Result - Naive');
 [peakSNR, SNR] = psnr(uint8(filteredWithNaive), uint8(imageReference));

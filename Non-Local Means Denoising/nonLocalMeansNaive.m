@@ -2,13 +2,13 @@ function [result] = nonLocalMeansNaive(targetImage, sigma, h, patchSize, searchW
 
 %% Non-Local Mean Denoising - Naive
 
-targetImage = im2double(rgb2gray(targetImage));
+targetImage = double(rgb2gray(targetImage));
 
 % Get row and col from original image 
 [imageRow, imageCol] = size(targetImage);
 
 % Preallocate
-result = zeros(imageRow, imageCol);
+result = targetImage;
 
 % Determine the patch boundary with respect to the center point
 patchLimit = (patchSize-1)/2;
@@ -32,49 +32,70 @@ patchGenerationEndRow = imageRow-patchLimit;
 patchGenerationStartCol = 1+patchLimit;
 patchGenerationEndCol = imageCol-patchLimit;
      
-for r = patchGenerationStartRow:patchGenerationEndRow  
-    
-    % Generate the window area using provided parameters
-    % Boundary check: ignore out of boundary area and shift the row col by
-    % patch limit
-    %
-    windowStartRow = max(r - windowLimit, 1+patchLimit);
-    windowEndRow = min(r + windowLimit, imageRow-patchLimit);
-    
-    for c = patchGenerationStartCol:patchGenerationEndCol  
-             
-        windowStartCol = max(c - windowLimit, 1+patchLimit);
-        windowEndCol = min(c + windowLimit, imageCol-patchLimit);
+for row = patchGenerationStartRow:patchGenerationEndRow     
+    for col = patchGenerationStartCol:patchGenerationEndCol  
+            
+%         % Generate the window area using provided parameters
+%         % Boundary check: ignore out of boundary area and shift the row col by
+%         % patch limit
+%         %
+%         windowStartRow = max(row - windowLimit, 1+patchLimit);
+%         windowEndRow = min(row + windowLimit, imageRow-patchLimit);
+%         windowStartCol = max(col - windowLimit, 1+patchLimit);
+%         windowEndCol = min(col + windowLimit, imageCol-patchLimit);
+%         
+%         % Get the current patch centered at r,c
+%         centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patchLimit);      
+%         
+%         offsetCounter=1;
+%         
+%         distances = [];     
+%         offsetsRows = [];
+%         offsetsCols = [];
+%         
+%         % Loop through all the pixels in the SearchWindow 
+%         for r = windowStartRow : windowEndRow
+%             for c = windowStartCol : windowEndCol    
+%                 % Calculate the offset
+%                 offsetsRows(offsetCounter) = r-row;       
+%                 offsetsCols(offsetCounter) = c-col;
+%                 % Get the patch at this position
+%                 slidePatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);
+%                 % Compute the sum of squared differences
+%                 distances(offsetCounter) = sum((slidePatch - centralPatch).^2, 'all');           
+%                 offsetCounter=offsetCounter+1;            
+%             end
+%         end
+%                      
+%         % Compute the current weight
+%         currentWeight = computeWeighting(distances, h, sigma, patchSize);
+%         
+%         % 
+%         pixelWeightImage = targetImage(row + offsetsRows(1):row+offsetsRows(offsetCounter-1), col+offsetsCols(1):col+offsetsCols(offsetCounter-1))';
+%         
+%         testImage = reshape(pixelWeightImage, offsetCounter-1, 1);
+%         
+%         pixelWeightImage = testImage.* currentWeight;
+%         
+%         % Accumulate the pixel weight sum
+%         pixelWeightSum = sum(pixelWeightImage, 'all');
+%         
+%         % Accumulate the weight sum
+%         weightSum = sum(currentWeight, 'all');
+%        
+%         result(row, col) = pixelWeightSum/weightSum;
+         [offsetRows, offsetCols, distances]=templateMatchingNaive(targetImage, row, col, patchSize, searchWindowSize);
         
-        % Get the current patch centered at r,c
-        centralPatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);      
+        weight =  computeWeighting(distances, h, sigma, patchSize);
+        sum_weight = sum(weight);
+
+        a = targetImage(row+offsetRows(1):row+offsetRows(length(offsetRows)),col+offsetCols(1):col+offsetCols(length(offsetRows)))';
+        b = reshape(a,1,length(offsetRows)).*weight;
         
-        % Reset the weights
-        pixelWeightSum = 0;
-        weightSum = 0;
-
-        % Loop through all the pixels in the SearchWindow 
-        for currentSearchWindowRow = windowStartRow : windowEndRow
-            for currentSearchWindowCol = windowStartCol : windowEndCol
-
-                % Retrieve the patch at current position
-                slidePatch = double(targetImage(currentSearchWindowRow-patchLimit:currentSearchWindowRow+patchLimit, currentSearchWindowCol-patchLimit:currentSearchWindowCol+patchLimit));
-
-                % Compute the sum of squared differences
-                distance = sum((slidePatch - centralPatch).^2, 'all'); 
-
-                % Compute the current weight
-                currentWeight = computeWeighting(distance, h, sigma, patchSize);
-
-                % Accumulate the pixel weight sum
-                pixelWeightSum = pixelWeightSum + slidePatch(1+patchLimit,1+patchLimit) * currentWeight;
-
-                % Accumulate the weight sum
-                weightSum = weightSum + currentWeight;
-            end
-        end
+        sum_pixel_in_wind = sum(b);
         
-        result(r, c) = pixelWeightSum/weightSum;
+        
+        result(row,col) =  sum_pixel_in_wind/sum_weight;     
     end
 end
 end
