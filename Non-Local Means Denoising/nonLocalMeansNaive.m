@@ -22,7 +22,7 @@ windowLimit = (searchWindowSize-1)/2;
 %   |         |PL              |
 %   |    *----------------|    |
 %   | PL |Patch Generation|    |
-%   |----|      Area      |    | -> *: CurrentPosition e.g.(r,c)
+%   |----|      Area      |    | -> *: CurrentPosition e.g.(row,col)
 %   |    |----------------|    |               
 %   |                          |
 %   ---------------------------- -> PL: PatchLimit (Distance)
@@ -33,69 +33,85 @@ patchGenerationStartCol = 1+patchLimit;
 patchGenerationEndCol = imageCol-patchLimit;
      
 for row = patchGenerationStartRow:patchGenerationEndRow     
+   
+    % Generate the window area using provided parameters
+    % Boundary check: ignore out of boundary area and shift the row col by
+    % patch limit 
+    windowStartRow = max(row - windowLimit, 1+patchLimit);
+    windowEndRow = min(row + windowLimit, imageRow-patchLimit);
+    
     for col = patchGenerationStartCol:patchGenerationEndCol  
-            
-%         % Generate the window area using provided parameters
-%         % Boundary check: ignore out of boundary area and shift the row col by
-%         % patch limit
-%         %
-%         windowStartRow = max(row - windowLimit, 1+patchLimit);
-%         windowEndRow = min(row + windowLimit, imageRow-patchLimit);
-%         windowStartCol = max(col - windowLimit, 1+patchLimit);
-%         windowEndCol = min(col + windowLimit, imageCol-patchLimit);
-%         
-%         % Get the current patch centered at r,c
-%         centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patchLimit);      
-%         
-%         offsetCounter=1;
-%         
-%         distances = [];     
-%         offsetsRows = [];
-%         offsetsCols = [];
-%         
-%         % Loop through all the pixels in the SearchWindow 
-%         for r = windowStartRow : windowEndRow
-%             for c = windowStartCol : windowEndCol    
-%                 % Calculate the offset
-%                 offsetsRows(offsetCounter) = r-row;       
-%                 offsetsCols(offsetCounter) = c-col;
-%                 % Get the patch at this position
-%                 slidePatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);
-%                 % Compute the sum of squared differences
-%                 distances(offsetCounter) = sum((slidePatch - centralPatch).^2, 'all');           
-%                 offsetCounter=offsetCounter+1;            
-%             end
-%         end
-%                      
-%         % Compute the current weight
-%         currentWeight = computeWeighting(distances, h, sigma, patchSize);
-%         
-%         % 
-%         pixelWeightImage = targetImage(row + offsetsRows(1):row+offsetsRows(offsetCounter-1), col+offsetsCols(1):col+offsetsCols(offsetCounter-1))';
-%         
-%         testImage = reshape(pixelWeightImage, offsetCounter-1, 1);
-%         
-%         pixelWeightImage = testImage.* currentWeight;
-%         
-%         % Accumulate the pixel weight sum
-%         pixelWeightSum = sum(pixelWeightImage, 'all');
-%         
-%         % Accumulate the weight sum
-%         weightSum = sum(currentWeight, 'all');
-%        
-%         result(row, col) = pixelWeightSum/weightSum;
-         [offsetRows, offsetCols, distances]=templateMatchingNaive(targetImage, row, col, patchSize, searchWindowSize);
-        
-        weight =  computeWeighting(distances, h, sigma, patchSize);
-        sum_weight = sum(weight);
 
-        a = targetImage(row+offsetRows(1):row+offsetRows(length(offsetRows)),col+offsetCols(1):col+offsetCols(length(offsetRows)))';
-        b = reshape(a,1,length(offsetRows)).*weight;
+        windowStartCol = max(col - windowLimit, 1+patchLimit);
+        windowEndCol = min(col + windowLimit, imageCol-patchLimit);
         
-        sum_pixel_in_wind = sum(b);
+        % Get the current patch centered at r,c
+        centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patchLimit);      
         
+        % Reset values for Naive algorithm
+        offsetCounter=1;
+        distances = [];     
+        offsetsRows = [];
+        offsetsCols = [];
         
-        result(row,col) =  sum_pixel_in_wind/sum_weight;     
+        % Loop through all the pixels in the SearchWindow 
+        for r = windowStartRow : windowEndRow
+            for c = windowStartCol : windowEndCol    
+                % Calculate the offset
+                offsetsRows(offsetCounter) = r-row;       
+                offsetsCols(offsetCounter) = c-col;
+                % Get the patch at this position
+                slidePatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);
+                % Compute the sum of squared differences
+                distances(offsetCounter) = sum((slidePatch - centralPatch).^2, 'all');           
+                offsetCounter=offsetCounter+1;            
+            end
+        end
+        
+        % Calculate the weight for current patch
+        % The distances is actually a matrix contains all ssd values for
+        % current patch
+        % Size is determined by offsetCounter. e.g. 1 by offsetCounter-1
+        % Thus the currentWeight is also a matrix    
+        currentWeight =  computeWeighting(distances, h, sigma, patchSize); 
+        
+        % Retrieve the image block
+        % e.g.
+        % (-1,-1) (-1,0) (-1,1)
+        % (0,-1)  (0,0) (0,1)
+        % (1,-1)  (1,0) (1,1)
+        imageBlock = targetImage(row+offsetsRows(1):row+offsetsRows(offsetCounter-1),col+offsetsCols(1):col+offsetsCols(offsetCounter-1));
+        
+        % To calculate the weighted image block   
+        % We need to multiply each value by its corresponding weight
+        % However currentWeight is 1 by offsetCounter - 1
+        % And imageBlock is a A by A matrix
+        % We need to match the dimesion so that the calculation can be done
+        %currentWeight = reshape(currentWeight,sqrt(offsetCounter-1),sqrt(offsetCounter-1));
+        %weightedImageBlock = imageBlock.* currentWeight;
+        
+        % Though the logic should be right, the result is different from
+        % integral algorithm
+        % After some diggings we noticed that matlab the row and col is
+        % swapped due the way matlab extract the value from matrix
+        % Therefore we need to transpose the imageBock so that each value
+        % can match its corresponding weight
+        imageBlock = transpose(imageBlock);
+        
+        % Reshape to offsetCounter - 1 by 1 matrix
+        imageBlock = reshape(imageBlock, 1, offsetCounter-1);
+        
+        % Compute the weightedImageBlock. The dimension will be -> [offsetCounter - 1 by 1] .* [1 by offsetCounter - 1]
+        weightedImageBlock = imageBlock.* currentWeight;
+        
+        % The weightSum is simply the sum of all elements in currentWeight
+        weightSum = sum(currentWeight);
+        
+        % The pixelWeightSum is the sum of 
+        pixelWeightSum = sum(weightedImageBlock);
+          
+        % Assign the denoised value to current position
+        result(row,col) =  pixelWeightSum/weightSum;     
     end
 end
 end

@@ -35,64 +35,68 @@ patchGenerationEndRow = imageRow-patchLimit;
 patchGenerationStartCol = 1+patchLimit;
 patchGenerationEndCol = imageCol-patchLimit;
 
-for currentSearchWindowRow = -windowLimit:windowLimit
-    for currentSearchWindowCol = -windowLimit:windowLimit
+% Extract the difference images
+for dRow = -windowLimit:windowLimit
+    for dCol = -windowLimit:windowLimit
         
         shiftedImage = double(zeros(imageRow, imageCol));
         
-        if (currentSearchWindowRow > 0 && currentSearchWindowCol > 0) 
-            shiftedImage(1+currentSearchWindowRow:imageRow, 1+currentSearchWindowCol:imageCol) = targetImage(1:imageRow-currentSearchWindowRow,1:imageCol-currentSearchWindowCol);
-        elseif (currentSearchWindowRow <= 0 && currentSearchWindowCol <= 0 )
-            shiftedImage(1:imageRow+currentSearchWindowRow, 1:imageCol+currentSearchWindowCol) = targetImage(1-currentSearchWindowRow:imageRow,1-currentSearchWindowCol:imageCol);
-        elseif (currentSearchWindowRow > 0 && currentSearchWindowCol <= 0)
-            shiftedImage(1+currentSearchWindowRow:imageRow, 1:imageCol+currentSearchWindowCol) = targetImage(1:imageRow-currentSearchWindowRow,1-currentSearchWindowCol:imageCol);
-        elseif (currentSearchWindowRow <=0 && currentSearchWindowCol > 0)
-            shiftedImage(1:imageRow+currentSearchWindowRow, 1+currentSearchWindowCol:imageCol) = targetImage(1-currentSearchWindowRow:imageRow,1:imageCol-currentSearchWindowCol);
+        % By checking the offsets we can figure out which direction the image
+        % should be shifted to
+        if (dRow > 0 && dCol > 0) 
+            shiftedImage(1+dRow:imageRow, 1+dCol:imageCol) = targetImage(1:imageRow-dRow,1:imageCol-dCol);
+        elseif (dRow <= 0 && dCol <= 0 )
+            shiftedImage(1:imageRow+dRow, 1:imageCol+dCol) = targetImage(1-dRow:imageRow,1-dCol:imageCol);
+        elseif (dRow > 0 && dCol <= 0)
+            shiftedImage(1+dRow:imageRow, 1:imageCol+dCol) = targetImage(1:imageRow-dRow,1-dCol:imageCol);
+        elseif (dRow <=0 && dCol > 0)
+            shiftedImage(1:imageRow+dRow, 1+dCol:imageCol) = targetImage(1-dRow:imageRow,1:imageCol-dCol);
         end
         
         % Calculate the difference image
         differenceImage = shiftedImage - targetImage;
         
         % Store the difference image 
-        differenceImageSet{currentSearchWindowRow+windowLimit+1,currentSearchWindowCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
+        differenceImageSet{dRow+windowLimit+1,dCol+windowLimit+1} = computeIntegralImage(differenceImage.^2);
     end
 end
 
-for r = patchGenerationStartRow:patchGenerationEndRow
+for row = patchGenerationStartRow:patchGenerationEndRow
     % Generate the window area using provided parameters
     % Boundary check: ignore out of boundary area and shift the row col by
     % patch limit
-    windowStartRow = max(r - windowLimit, 1+patchLimit);
-    windowEndRow = min(r + windowLimit, imageRow-patchLimit);
     
-    for c = patchGenerationStartCol:patchGenerationEndCol
+    windowStartRow = max(row - windowLimit, 1+patchLimit);
+    windowEndRow = min(row + windowLimit, imageRow-patchLimit);
+    
+    for col = patchGenerationStartCol:patchGenerationEndCol
         
-        windowStartCol = max(c - windowLimit, 1+patchLimit);
-        windowEndCol = min(c + windowLimit, imageCol-patchLimit);
+        windowStartCol = max(col - windowLimit, 1+patchLimit);
+        windowEndCol = min(col + windowLimit, imageCol-patchLimit);
 
         % Reset the weights
         pixelWeightSum = 0;
         weightSum = 0;
 
         % Loop through all the pixels in the SearchWindow 
-        for currentSearchWindowRow = windowStartRow : windowEndRow
-            for currentSearchWindowCol = windowStartCol : windowEndCol
+        for dRow = windowStartRow : windowEndRow
+            for dCol = windowStartCol : windowEndCol
 
-                offsetRow = currentSearchWindowRow - r;
-                offsetCol = currentSearchWindowCol - c;
+                offsetRow = dRow - row;
+                offsetCol = dCol - col;
 
                 % retrive the Integral Image for the corresponding
                 % offset
                 integralImage = differenceImageSet{offsetRow+windowLimit+1, offsetCol+windowLimit+1};
 
                 % Compute the distance (how is explained inside the function)
-                distance = evaluateIntegralImage(integralImage, currentSearchWindowRow+patchLimit, currentSearchWindowCol+patchLimit, patchSize);
+                distance = evaluateIntegralImage(integralImage, dRow+patchLimit, dCol+patchLimit, patchSize);
 
                 % Compute the current weight
                 currentWeight = computeWeighting(distance, h, sigma, patchSize);
 
                 % compute the weighted sum
-                pixelWeightSum = pixelWeightSum + targetImage(currentSearchWindowRow,currentSearchWindowCol) * currentWeight;
+                pixelWeightSum = pixelWeightSum + targetImage(dRow,dCol) * currentWeight;
 
                 % keep adding the weights in order to normalize.
                 weightSum = weightSum + currentWeight;
@@ -100,7 +104,7 @@ for r = patchGenerationStartRow:patchGenerationEndRow
         end
         
         % Denoised position
-        result(r, c) = pixelWeightSum/weightSum;
+        result(row, col) = pixelWeightSum/weightSum;
     end
 end
 end
