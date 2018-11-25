@@ -1,5 +1,5 @@
 function [integralImage] = computeIntegralImage(image)
-%% Hard Coded Method 
+%% Compute Integral Image
  % According to the concept
  % Still relatively efficient
  
@@ -30,7 +30,7 @@ function [integralImage] = computeIntegralImage(image)
              % *0000
              integralImage(r,c) = integralImage(r-1,c) + image(r,c);
          else
-             % Handle any other condition: Left position value + Top position value - Top Left position value (Redundant) + Current position value
+             % Handle any other condition: Left position value + Top position value - Top Left position value(Redundant) + Current position value
              % RRR##
              % RRRI#
              % ##I*0
@@ -40,9 +40,8 @@ function [integralImage] = computeIntegralImage(image)
  end
 
 %% Optimisation: Cumulative Sum Method
-
 % % As suggested in lecture slide p56 - use cumulative sum
-% % The efficiency is almost same as the hard coded method though
+% % The efficiency is almost same as the method I coded above though
 % [imageRow,imageCol,~] = size(image);   
 % integralImage = zeros(imageRow,imageCol);
 % 

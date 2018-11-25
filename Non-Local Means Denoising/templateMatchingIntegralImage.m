@@ -16,7 +16,7 @@ function [offsetsRows, offsetsCols, distances] = templateMatchingIntegralImage(t
 % NOTE: Use the 'evaluateIntegralImage' function to calculate patch sums
 
 %% Template Matching (Integral Image)
-% Preallocate
+% % Preallocate
 % windowRegionSize = searchWindowSize.^2;
 % offsetsRows = zeros(windowRegionSize,1);
 % offsetsCols = zeros(windowRegionSize,1);
@@ -47,9 +47,6 @@ offsetCounter=1;
 
 for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
-        
-        % 
-        %shiftedImage = imtranslate(targetImage, [offsetCol, offsetRow]);
                
         % Shift image by offsets
         shiftedImage = double(zeros(imageRow, imageCol));
