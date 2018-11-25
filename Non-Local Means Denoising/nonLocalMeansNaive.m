@@ -1,6 +1,6 @@
 function [result] = nonLocalMeansNaive(targetImage, sigma, h, patchSize, searchWindowSize)
 
-%% Non-Local Mean Denoising - Naive
+%% Non-Local Mean Denoising (Naive)
 
 targetImage = double(rgb2gray(targetImage));
 
@@ -53,6 +53,8 @@ for row = patchGenerationStartRow:patchGenerationEndRow
         distances = [];     
         offsetsRows = [];
         offsetsCols = [];
+        weightSum = 0;
+        pixelWeightSum = 0;
         
         % Loop through all the pixels in the SearchWindow 
         for r = windowStartRow : windowEndRow
@@ -60,57 +62,30 @@ for row = patchGenerationStartRow:patchGenerationEndRow
                 % Calculate the offset
                 offsetsRows(offsetCounter) = r-row;       
                 offsetsCols(offsetCounter) = c-col;
-                % Get the patch at this position
+                
+                % Get the patch at this position (currentPatch)
                 slidePatch = targetImage(r-patchLimit:r+patchLimit,c-patchLimit:c+patchLimit);
+                
                 % Compute the sum of squared differences
                 distances(offsetCounter) = sum((slidePatch - centralPatch).^2, 'all');           
-                offsetCounter=offsetCounter+1;            
+                
+                % Get the current pixel value
+                currentPixel = targetImage(row+offsetsRows(offsetCounter),col+offsetsCols(offsetCounter));
+                
+                % Compute current weight from current SSD
+                currentWeight = computeWeighting(distances(offsetCounter), h, sigma, patchSize);
+                
+                % Accumulate the weighted pixel sum
+                pixelWeightSum = pixelWeightSum + currentPixel * currentWeight;
+            
+                % Accumulate the weight sum
+                weightSum = weightSum + currentWeight;
+                
+                % Counter
+                offsetCounter=offsetCounter+1;     
             end
-        end
+        end        
         
-        % Reset the weights
-        weightSum = 0;
-        pixelWeightSum = 0;
-        
-        % Retrieve the image block
-        % e.g.
-        % (-1,-1) (-1,0) (-1,1)
-        % (0,-1)  (0,0) (0,1)
-        % (1,-1)  (1,0) (1,1)
-        imageBlock = targetImage(row+offsetsRows(1):row+offsetsRows(offsetCounter-1),col+offsetsCols(1):col+offsetsCols(offsetCounter-1));
-        
-        % To calculate the weighted image block   
-        % We need to multiply each value by its corresponding weight
-        
-        % However currentWeight is generated from a 1 by offsetCounter - 1
-        % distances matrix
-        % And imageBlock is a A by A matrix
-        % We need to match the dimesion so that the calculation can be done
-  
-        % Though the logic should be right, the result is different from
-        % integral algorithm
-        % After some diggings we noticed that matlab the row and col is
-        % swapped due the way matlab extract the value from matrix
-        % Therefore we need to transpose the imageBock so that each value
-        % can match its corresponding weight
-        imageBlock = transpose(imageBlock);
-        
-        % Reshape to 1 by offsetCounter - 1 matrix
-        imageBlock = reshape(imageBlock, offsetCounter-1, 1);
-        
-        % Calculate the weight for the corresponding position
-        for i = 1:offsetCounter-1 
-            
-            % Compute the current weight
-            currentWeight = computeWeighting(distances(i), h, sigma, patchSize); 
-            
-            % Compute the weighted pixel sum
-            pixelWeightSum = pixelWeightSum + imageBlock(i,1) * currentWeight;
-            
-            % Accumulate the weight sum
-            weightSum = weightSum + currentWeight;
-        end               
-          
         % Assign the denoised value to current position
         result(row,col) =  pixelWeightSum/weightSum;     
     end

@@ -2,7 +2,7 @@ function [patchSum] = evaluateIntegralImage(integralImage, row, col, patchSize)
 % This function should calculate the sum over the patch centred at row, col
 % of size patchSize of the integral image ii
 
-%% Integral Image
+%% Integral Image Evaluation
 % The boundaries are clipped so we only need to consider the start position
 % for row and col
 
@@ -34,7 +34,7 @@ end
 patchSum = L3 - L2 -L4 + L1;
 
 %% Integral Image - Obsolete
-% % This was done before correcting the boundary
+% % This was done before correcting the boundary!
 % [imageRow, imageCol] = size(integralImage);
 % patchLimit = (patchSize-1)/2;
 % 

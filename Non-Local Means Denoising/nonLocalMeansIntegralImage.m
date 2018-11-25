@@ -1,6 +1,6 @@
 function [result] = nonLocalMeansIntegralImage(targetImage, sigma, h, patchSize, searchWindowSize)
 
-%% Non-Local Mean Denoising - Integral
+%% Non-Local Mean Denoising (Integral)
 % 
 targetImage = double(rgb2gray(targetImage));
 
