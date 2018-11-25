@@ -37,6 +37,19 @@ windowLimit = (searchWindowSize-1)/2;
 % Boundary check: ignore out of boundary area and shift the row col by
 % patch limit
 
+% |------------------------| <- Window
+% |           WL           |
+% |     |------------|     |
+% |     |     PL     |     |
+% |     |     |      |     | WL: WindowLimit
+% |-WL--|-PL--*-PL-----WL---------------- <- TargetImage   
+% |     |     |######|&&&&&|            | 
+% |     |     PL#####|&&&&&|            | -> #: Valid area in patch
+% |     |---- |------|&&&&&|            | -> &: Valid area in window    
+% |           WL&&&&&&&&&&&|            | -> *: CurrentPosition e.g.(r,c)   
+% |------------------------|            | 
+%             |                         | 
+%             |------------------------- PL: PatchLimit
 windowStartRow = max(row - windowLimit, 1+patchLimit);
 windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);
@@ -48,7 +61,8 @@ offsetCounter=1;
 for offsetRow = -windowLimit:windowLimit
     for offsetCol = -windowLimit:windowLimit
                
-        % Shift image by offsets
+        % By checking the offsets we can figure out which direction the image
+        % should be shifted to
         shiftedImage = double(zeros(imageRow, imageCol));
         
         if (offsetRow > 0 && offsetCol > 0) 

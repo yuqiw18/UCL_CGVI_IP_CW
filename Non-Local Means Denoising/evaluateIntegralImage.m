@@ -33,8 +33,8 @@ end
 % Calculate the patch sum   
 patchSum = L3 - L2 -L4 + L1;
 
-%% Integral Image - Obsolete
-% % This was done before correcting the boundary!
+%% Integral Image Evaluation - Obsolete
+% % This was done before correcting/shifting the boundary!
 % [imageRow, imageCol] = size(integralImage);
 % patchLimit = (patchSize-1)/2;
 % 

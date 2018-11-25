@@ -28,8 +28,7 @@ differenceImageSet = cell(searchWindowSize, searchWindowSize);
 %   |----|      Area      |    |
 %   |    |----------------|    |               
 %   |                          |
-%   ---------------------------- -> PL: PatchLimit (Distance)
-
+%   ---------------------------- -> PL: PatchLimit
 patchGenerationStartRow = 1+patchLimit;
 patchGenerationEndRow = imageRow-patchLimit;
 patchGenerationStartCol = 1+patchLimit;
@@ -39,10 +38,10 @@ patchGenerationEndCol = imageCol-patchLimit;
 for dRow = -windowLimit:windowLimit
     for dCol = -windowLimit:windowLimit
         
-        shiftedImage = double(zeros(imageRow, imageCol));
-        
         % By checking the offsets we can figure out which direction the image
         % should be shifted to
+        shiftedImage = double(zeros(imageRow, imageCol));
+        
         if (dRow > 0 && dCol > 0) 
             shiftedImage(1+dRow:imageRow, 1+dCol:imageCol) = targetImage(1:imageRow-dRow,1:imageCol-dCol);
         elseif (dRow <= 0 && dCol <= 0 )

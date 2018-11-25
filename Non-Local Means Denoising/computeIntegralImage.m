@@ -9,6 +9,11 @@ function [integralImage] = computeIntegralImage(image)
  integralImage = zeros(imageRow,imageCol); 
  
  % Calculate the integral image
+ % *: Current position
+ % 0: Uncalculated position
+ % #: Calculated position
+ % R: Redundant position
+ % I: Integral value to be used
  for r = 1 : imageRow
      for c = 1 : imageCol
          if (r==1 && c ==1) 

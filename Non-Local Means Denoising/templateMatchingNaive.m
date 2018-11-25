@@ -33,7 +33,19 @@ centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patc
 % Generate the window area using provided parameters
 % Boundary check: ignore out of boundary area and shift the row col by
 % patch limit
-
+% |------------------------| <- Window
+% |           WL           |
+% |     |------------|     |
+% |     |     PL     |     |
+% |     |     |      |     | WL: WindowLimit
+% |-WL--|-PL--*-PL-----WL---------------- <- TargetImage   
+% |     |     |######|&&&&&|            | 
+% |     |     PL#####|&&&&&|            | -> #: Valid area in patch
+% |     |---- |------|&&&&&|            | -> &: Valid area in window    
+% |           WL&&&&&&&&&&&|            | -> *: CurrentPosition e.g.(r,c)   
+% |------------------------|            | 
+%             |                         | 
+%             |------------------------- PL: PatchLimit
 windowStartRow = max(row - windowLimit, 1+patchLimit);
 windowEndRow = min(row + windowLimit, imageRow-patchLimit);
 windowStartCol = max(col - windowLimit, 1+patchLimit);

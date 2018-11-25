@@ -25,8 +25,7 @@ windowLimit = (searchWindowSize-1)/2;
 %   |----|      Area      |    | -> *: CurrentPosition e.g.(row,col)
 %   |    |----------------|    |               
 %   |                          |
-%   ---------------------------- -> PL: PatchLimit (Distance)
-
+%   ---------------------------- -> PL: PatchLimit
 patchGenerationStartRow = 1+patchLimit;
 patchGenerationEndRow = imageRow-patchLimit;
 patchGenerationStartCol = 1+patchLimit;

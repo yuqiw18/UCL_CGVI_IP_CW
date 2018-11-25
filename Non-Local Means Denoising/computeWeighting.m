@@ -12,8 +12,6 @@ function [result] = computeWeighting(d, h, sigma, patchSize)
     %
     % (d/patchSize)^2 -> does not work, black image
     %
-    % (d/patchSize^2) -> works, denoised image
-    
-    result = exp(-max(d/(patchSize^2)-2*(sigma^2),0)/h^2);
-    
+    % (d/patchSize^2) -> works, denoised image    
+    result = exp(-max(d/(patchSize^2)-2*(sigma^2),0)/h^2); 
 end
