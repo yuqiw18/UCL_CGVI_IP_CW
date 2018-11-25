@@ -48,7 +48,7 @@ for row = patchGenerationStartRow:patchGenerationEndRow
         % Get the current patch centered at r,c
         centralPatch = targetImage(row-patchLimit:row+patchLimit,col-patchLimit:col+patchLimit);      
         
-        % Reset values for Naive algorithm
+        % Reset values for each loop
         offsetCounter=1;
         distances = [];     
         offsetsRows = [];
@@ -68,12 +68,9 @@ for row = patchGenerationStartRow:patchGenerationEndRow
             end
         end
         
-        % Calculate the weight for current patch
-        % The distances is actually a matrix contains all ssd values for
-        % current patch
-        % Size is determined by offsetCounter. e.g. 1 by offsetCounter-1
-        % Thus the currentWeight is also a matrix    
-        currentWeight =  computeWeighting(distances, h, sigma, patchSize); 
+        % Reset the weights
+        weightSum = 0;
+        pixelWeightSum = 0;
         
         % Retrieve the image block
         % e.g.
@@ -84,12 +81,12 @@ for row = patchGenerationStartRow:patchGenerationEndRow
         
         % To calculate the weighted image block   
         % We need to multiply each value by its corresponding weight
-        % However currentWeight is 1 by offsetCounter - 1
+        
+        % However currentWeight is generated from a 1 by offsetCounter - 1
+        % distances matrix
         % And imageBlock is a A by A matrix
         % We need to match the dimesion so that the calculation can be done
-        %currentWeight = reshape(currentWeight,sqrt(offsetCounter-1),sqrt(offsetCounter-1));
-        %weightedImageBlock = imageBlock.* currentWeight;
-        
+  
         % Though the logic should be right, the result is different from
         % integral algorithm
         % After some diggings we noticed that matlab the row and col is
@@ -98,17 +95,21 @@ for row = patchGenerationStartRow:patchGenerationEndRow
         % can match its corresponding weight
         imageBlock = transpose(imageBlock);
         
-        % Reshape to offsetCounter - 1 by 1 matrix
-        imageBlock = reshape(imageBlock, 1, offsetCounter-1);
+        % Reshape to 1 by offsetCounter - 1 matrix
+        imageBlock = reshape(imageBlock, offsetCounter-1, 1);
         
-        % Compute the weightedImageBlock. The dimension will be -> [offsetCounter - 1 by 1] .* [1 by offsetCounter - 1]
-        weightedImageBlock = imageBlock.* currentWeight;
-        
-        % The weightSum is simply the sum of all elements in currentWeight
-        weightSum = sum(currentWeight);
-        
-        % The pixelWeightSum is the sum of 
-        pixelWeightSum = sum(weightedImageBlock);
+        % Calculate the weight for the corresponding position
+        for i = 1:offsetCounter-1 
+            
+            % Compute the current weight
+            currentWeight = computeWeighting(distances(i), h, sigma, patchSize); 
+            
+            % Compute the weighted pixel sum
+            pixelWeightSum = pixelWeightSum + imageBlock(i,1) * currentWeight;
+            
+            % Accumulate the weight sum
+            weightSum = weightSum + currentWeight;
+        end               
           
         % Assign the denoised value to current position
         result(row,col) =  pixelWeightSum/weightSum;     

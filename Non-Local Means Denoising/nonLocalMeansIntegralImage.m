@@ -85,20 +85,20 @@ for row = patchGenerationStartRow:patchGenerationEndRow
                 offsetRow = dRow - row;
                 offsetCol = dCol - col;
 
-                % retrive the Integral Image for the corresponding
+                % Retrive the Integral Image for the corresponding
                 % offset
                 integralImage = differenceImageSet{offsetRow+windowLimit+1, offsetCol+windowLimit+1};
 
-                % Compute the distance (how is explained inside the function)
+                % Compute the distance
                 distance = evaluateIntegralImage(integralImage, dRow+patchLimit, dCol+patchLimit, patchSize);
 
                 % Compute the current weight
                 currentWeight = computeWeighting(distance, h, sigma, patchSize);
 
-                % compute the weighted sum
+                % Compute the weighted pixel sum
                 pixelWeightSum = pixelWeightSum + targetImage(dRow,dCol) * currentWeight;
 
-                % keep adding the weights in order to normalize.
+                % Accumulate the weight sum
                 weightSum = weightSum + currentWeight;
             end
         end
