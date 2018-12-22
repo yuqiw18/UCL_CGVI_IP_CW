@@ -3,7 +3,7 @@ clear;
 clc;
 
 % Load the image
-sourceImage = rgb2gray(imread("./images/portrait.jpg"));
+sourceImage = rgb2gray(imread("./images/portrait2.jpg"));
 targetImage = zeros(size(sourceImage));
 
 % Return the binary mask
