@@ -1,0 +1,126 @@
+%% Task 1: Grayscale Image with Interpolation
+clear;
+clc;
+
+% Load the image
+sourceImage = rgb2gray(imread("./images/portrait.jpg"));
+targetImage = zeros(size(sourceImage));
+
+% Return the binary mask
+maskRegion = roipoly(im2double(sourceImage));
+maskRegionValue = maskRegion .* double(sourceImage);
+
+% Get the boundary coordinate
+boundary = bwboundaries(maskRegion);
+boundaryCoords = cell2mat(boundary);
+boundaryCoordX = boundaryCoords(:,1);
+boundaryCoordY = boundaryCoords(:,2);
+boundaryLength = length(boundaryCoordX);
+
+% Mask region excluding the boundary - Omega
+omega = maskRegion;
+for i = 1:size(boundaryCoords,1)
+    % Crop the boundary from original mask
+    omega(boundaryCoordX(i),boundaryCoordY(i))=0;
+end
+omegaPixelCoords = find(omega);
+omegaPixelValues = omega .* double(sourceImage);
+
+A = sparse(boundaryLength,boundaryLength,0);
+
+% for j = 1:boundaryLength
+%     for k = 1:boundaryLength
+%         if (j==k)
+%             A(j,k)=4;
+%         else
+%             if 
+%             end 
+%         end
+%     end
+%     
+%         
+% end
+
+for i = 1:boundaryLength
+    for j = 1:boundaryLength  %Deal with edge later!
+        % Fill in the A matrix
+        if(i == j)
+            A(i,j) = 4;
+        else
+            % if p_j in N_pi
+            if(boundaryCoordX(j) == boundaryCoordX(i)-1 & boundaryCoordY(j) == boundaryCoordY(i))
+                % if pj is up of pi
+                A(i,j) = -1;
+            end
+            if(boundaryCoordX(j) == boundaryCoordX(i) & boundaryCoordY(j) == boundaryCoordY(i)+1)
+                % if pj is right of pi
+                A(i,j) = -1;
+            end
+            if(boundaryCoordX(j) == boundaryCoordX(i)+1 & boundaryCoordY(j) == boundaryCoordY(i))
+                % if pj is down of pi
+                A(i,j) = -1;
+            end
+            if(boundaryCoordX(j) == boundaryCoordX(i) & boundaryCoordY(j) == boundaryCoordY(i)-1)
+                % if pj is left of pi
+                A(i,j) = -1;
+            end
+        end
+    end
+    %Now fill in the B matrix
+    sum = 0;
+    if(TargetBoundary(boundaryCoordX(i)-1,boundaryCoordY(i)) == 1)
+        % if up of pi is in boundary
+        sum = sum + TargetImg(boundaryCoordX(i)-1,boundaryCoordY(i));
+    end
+    if(TargetBoundary(boundaryCoordX(i),boundaryCoordY(i)+1) == 1)
+        % if right of pi is in boundary
+        sum = sum + TargetImg(boundaryCoordX(i),boundaryCoordY(i)+1);
+    end
+    if(TargetBoundary(boundaryCoordX(i)+1,boundaryCoordY(i)) == 1)
+        % if down of pi is in boundary
+        sum = sum + TargetImg(boundaryCoordX(i)+1,boundaryCoordY(i));
+    end
+    if(TargetBoundary(boundaryCoordX(i),boundaryCoordY(i)-1) == 1)
+        % if left of pi is in boundary
+        sum = sum + TargetImg(boundaryCoordX(i),boundaryCoordY(i)-1);
+    end
+    b(i)= sum;
+end
+
+    
+% exBoundaryMaskOrder = zeros(size(omegaPixelValues));
+% for i = 1:size(omegaPixelCoords)
+%     exBoundaryMaskOrder(omegaPixelCoords(i))=i;
+% end
+% 
+% A = delsq(exBoundaryMaskOrder);
+% 
+% % Boundary condition: f = f*, f(target) is unknown, f*(source) is 
+% targetImageMaskRegionBoundaryCoord = boundaryCoords;
+% targetImageMaskRegionBoundaryValue = zeros(size(maskRegionValue));
+% for i = 1 : size(boundaryCoords,1)
+%     targetImageMaskRegionBoundaryValue(boundaryCoords(i,1),boundaryCoords(i,2))=sourceImage(boundaryCoords(i,1),boundaryCoords(i,2));
+% end
+% 
+% [maskXCoord, maskYCoord] = find(maskRegion);
+% for i =1:size(maskXCoord)
+%     neighbour1 = targetImageMaskRegionBoundaryValue(maskXCoord(i)-1, maskYCoord(i));
+%     neighbour2 = targetImageMaskRegionBoundaryValue(maskXCoord(i)+1, maskYCoord(i));
+%     neighbour3 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)-1);
+%     neighbour4 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)+1);
+%     targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4 - 4* targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i));
+% end
+% 
+% b = targetImage(omegaPixelCoords);
+% x = A\b;
+
+% Find the coordinate for each pixel in the mask
+[xX, yY] = find(omega);
+result = double(sourceImage);
+
+for i = 1:size(xX)
+    result(xX(i),yY(i))=j(i);
+end
+
+figure;
+imshow(result/255);

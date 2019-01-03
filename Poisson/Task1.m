@@ -1,43 +1,43 @@
-%% Task 1: Grayscale Image
+%% Task 1: Grayscale Image with Interpolation
 clear;
 clc;
 
 % Load the image
-sourceImage = rgb2gray(imread("./images/portrait2.jpg"));
+sourceImage = rgb2gray(imread("./images/portrait.jpg"));
 targetImage = zeros(size(sourceImage));
+result = double(sourceImage);
 
 % Return the binary mask
 maskRegion = roipoly(im2double(sourceImage));
-%targetMaskRegion = zeros(size(maskRegion));
-%regionPixelCount = find(maskRegion);
-maskRegionValue = maskRegion .* double(sourceImage);
 
-% Get the boundary coordinate
+% Get the boundary coordinate - ??
 boundary = bwboundaries(maskRegion);
-boundaryCoord = cell2mat(boundary);
+boundaryCoords = cell2mat(boundary);
+boundaryCoordX = boundaryCoords(:,1);
+boundaryCoordY = boundaryCoords(:,2);
 
-% Mask region excluding the boundary
-exBoundaryMaskRegion = maskRegion;
-for i = 1:size(boundaryCoord,1)
-    % Crop the boundary from original mask
-    exBoundaryMaskRegion(boundaryCoord(i,1),boundaryCoord(i,2))=0;
+% Mask region excluding the boundary - ?
+omega = maskRegion;
+for i = 1:size(boundaryCoordX)
+    omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
-exBoundaryMaskRegionValue = exBoundaryMaskRegion .* double(sourceImage);
-exBoundaryMaskRegionPixelCount = find(exBoundaryMaskRegion);
 
-exBoundaryMaskOrder = zeros(size(exBoundaryMaskRegionValue));
-for i = 1:size(exBoundaryMaskRegionPixelCount)
-    exBoundaryMaskOrder(exBoundaryMaskRegionPixelCount(i))=i;
+% Boundary condition: f = f*, f(target) is unknown, f*(source) is known
+targetImageMaskRegionBoundaryCoord = boundaryCoords;
+targetImageMaskRegionBoundaryValue = zeros(size(maskRegion));
+for i = 1 : size(boundaryCoords,1)
+    targetImageMaskRegionBoundaryValue(boundaryCoordX(i),boundaryCoordY(i))=sourceImage(boundaryCoordX(i),boundaryCoordY(i));
+end
+
+% Now construct the linear function
+omegaPixelCoords = find(omega);
+exBoundaryMaskOrder = zeros(size(omega));
+for i = 1:size(omegaPixelCoords)
+    exBoundaryMaskOrder(omegaPixelCoords(i))=i;
 end
 
 A = delsq(exBoundaryMaskOrder);
-
-% Boundary condition: f = f*, f(target) is unknown, f*(source) is 
-targetImageMaskRegionBoundaryCoord = boundaryCoord;
-targetImageMaskRegionBoundaryValue = zeros(size(maskRegionValue));
-for i = 1 : size(boundaryCoord,1)
-    targetImageMaskRegionBoundaryValue(boundaryCoord(i,1),boundaryCoord(i,2))=sourceImage(boundaryCoord(i,1),boundaryCoord(i,2));
-end
+B = del2(exBoundaryMaskOrder);
 
 [maskXCoord, maskYCoord] = find(maskRegion);
 for i =1:size(maskXCoord)
@@ -45,35 +45,20 @@ for i =1:size(maskXCoord)
     neighbour2 = targetImageMaskRegionBoundaryValue(maskXCoord(i)+1, maskYCoord(i));
     neighbour3 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)-1);
     neighbour4 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)+1);
-    targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4 - 4* targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i));
+    targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4;
 end
 
-b = targetImage(exBoundaryMaskRegionPixelCount);
+b = targetImage(omegaPixelCoords);
+
+% Solve the equation
 x = A\b;
 
 % Find the coordinate for each pixel in the mask
-[xX, yY] = find(exBoundaryMaskRegion);
-result = double(sourceImage);
+[row, col] = find(omega);
 
-for i = 1:size(xX)
-    result(xX(i),yY(i))=x(i);
+for i = 1:size(row)
+    result(row(i),col(i))=x(i);
 end
 
 figure;
 imshow(result/255);
-
-%% Test
-%
-% figure;
-% imshow(maskRegion);
-% title("Mask Region");
-%
-% figure;
-% maskRegionValue = maskRegion .* double(sourceImage);
-% imshow(uint8(maskRegionValue));
-% title("Selected Region");
-% 
-% figure;
-% maskArea2 = exBoundaryMaskRegion .* double(sourceImage);
-% imshow(uint8(maskArea2));
-% title("Selected Region without boundary");

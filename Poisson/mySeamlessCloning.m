@@ -24,6 +24,7 @@ line(source_col,source_row);
 result_importing = sourceImage;
 result_mixing = sourceImage;
 [~,~,c]=size(sourceImage);
+
 for channel = 1:c
 imgSingleChannel_target = targetImage(:,:,channel);
 imgSingleChannel_source = sourceImage(:,:,channel);
@@ -76,7 +77,7 @@ for n =1:size(smallTargetMask_row)
     result_directCloning(int16(smallTargetMask_row(n)+offset(2)),int16(smallTargetMask_col(n)+offset(1))) =...
         imgSingleChannel_target(int16(smallTargetMask_row(n)),int16(smallTargetMask_col(n)));
 end
-%% caluculate importing gradients Vpq_importing
+%% Importing Gradients
 Vpq_importing  = zeros(size(imgSingleChannel_target));
 [maskTarget_row, maskTarget_col] = find(mask_target);
 for n =1:size(maskTarget_row)
@@ -100,7 +101,7 @@ for n =1:size(smallTargetMask_row);
 end
 result_importing(:,:,channel) = result_importingGradient;
 
-%% calculate mixing gradients Vpq_mixing
+%% Mixing Gradients
 Vpq_mixing = zeros(size(imgSingleChannel_target));
 [maskSource_row, maskSource_col] = find(mask_source);
 for n =1:size(maskTarget_row)
