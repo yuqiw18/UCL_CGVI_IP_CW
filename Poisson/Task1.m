@@ -29,6 +29,10 @@ end
 [omegaPixelCoordX, omegaPixelCoordY] = find(omega);
 gridSize = length(omegaPixelCoordX);
 
+% Preallocate A and b
+A = sparse(gridSize,gridSize,0);
+b = zeros(gridSize,1);
+
 %% Construct A: Laplacian (Efficiency is Terrible for Big Region)
 % disp('Efficiency - hardcoding');
 % tic
