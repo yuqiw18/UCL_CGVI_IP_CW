@@ -4,10 +4,10 @@ clc;
 
 % Load images
 sourceImage = double(imread("./images/portrait.jpg"));
-targetImage = double(imread("./images/portrait.jpg"));
+targetImage = double(imread("./images/wood.jpg"));
 
 % Task 2 - Grayscale Image with Importing Gradients and Mixing Gradients
-SeamlessCloning(sourceImage, targetImage, false);
+%SeamlessCloning(sourceImage, targetImage, false);
 
 % Task 3 - Colored Image
-% SeamlessCloning(sourceImage, targetImage, true);
+SeamlessCloning(sourceImage, targetImage, true);
