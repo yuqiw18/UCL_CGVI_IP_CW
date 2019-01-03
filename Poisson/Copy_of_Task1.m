@@ -9,7 +9,7 @@ targetImage = zeros(size(sourceImage));
 % Return the binary mask
 maskRegion = roipoly(im2double(sourceImage));
 %targetMaskRegion = zeros(size(maskRegion));
-%regionPixelCount = find(maskRegion);
+regionPixelCount = find(maskRegion);
 maskRegionValue = maskRegion .* double(sourceImage);
 
 % Get the boundary coordinate
@@ -23,7 +23,7 @@ for i = 1:size(boundaryCoord,1)
     exBoundaryMaskRegion(boundaryCoord(i,1),boundaryCoord(i,2))=0;
 end
 exBoundaryMaskRegionValue = exBoundaryMaskRegion .* double(sourceImage);
-exBoundaryMaskRegionPixelCount = find(exBoundaryMaskRegion);
+exBoundaryMaskRegionPixelCount = find(exBoundaryMaskRegionValue);
 
 exBoundaryMaskOrder = zeros(size(exBoundaryMaskRegionValue));
 for i = 1:size(exBoundaryMaskRegionPixelCount)
@@ -31,32 +31,35 @@ for i = 1:size(exBoundaryMaskRegionPixelCount)
 end
 
 A = delsq(exBoundaryMaskOrder);
+B = delsq(exBoundaryMaskRegionValue);
 
-% Boundary condition: f = f*, f(target) is unknown, f*(source) is 
+% Blur the bounday
 targetImageMaskRegionBoundaryCoord = boundaryCoord;
-targetImageMaskRegionBoundaryValue = zeros(size(maskRegionValue));
+targetUnageMaskRegionBoundaryValue = zeros(size(maskRegionValue));
 for i = 1 : size(boundaryCoord,1)
-    targetImageMaskRegionBoundaryValue(boundaryCoord(i,1),boundaryCoord(i,2))=sourceImage(boundaryCoord(i,1),boundaryCoord(i,2));
+    targetUnageMaskRegionBoundaryValue(boundaryCoord(i,1),boundaryCoord(i,2))=sourceImage(boundaryCoord(i,1),boundaryCoord(i,2));
 end
 
 [maskXCoord, maskYCoord] = find(maskRegion);
 for i =1:size(maskXCoord)
-    neighbour1 = targetImageMaskRegionBoundaryValue(maskXCoord(i)-1, maskYCoord(i));
-    neighbour2 = targetImageMaskRegionBoundaryValue(maskXCoord(i)+1, maskYCoord(i));
-    neighbour3 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)-1);
-    neighbour4 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)+1);
-    targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4 - 4* targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i));
+    neighbour1 = targetUnageMaskRegionBoundaryValue(maskXCoord(i)-1, maskYCoord(i));
+    neighbour2 = targetUnageMaskRegionBoundaryValue(maskXCoord(i)+1, maskYCoord(i));
+    neighbour3 = targetUnageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)-1);
+    neighbour4 = targetUnageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)+1);
+    targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4 - 4* targetUnageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i));
 end
 
-b = targetImage(exBoundaryMaskRegionPixelCount);
-x = A\b;
+% for i = 1 : size (boundaryCoord, 1)
+%     targetImage(boundaryCoord(i,1),boundaryCoord(i,2))=2;
+% end
 
-% Find the coordinate for each pixel in the mask
+fq = targetImage(exBoundaryMaskRegionPixelCount);
+f = A\fq;
 [xX, yY] = find(exBoundaryMaskRegion);
 result = double(sourceImage);
 
 for i = 1:size(xX)
-    result(xX(i),yY(i))=x(i);
+    result(xX(i),yY(i))=f(i);
 end
 
 figure;
