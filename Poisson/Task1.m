@@ -4,17 +4,20 @@ clc;
 
 % Load the image
 sourceImage = rgb2gray(imread("./images/portrait.jpg"));
-targetImage = zeros(size(sourceImage));
-result = double(sourceImage);
+targetImage = double(sourceImage);
 
 % Return the binary mask
 maskRegion = roipoly(im2double(sourceImage));
 
-% Get the boundary coordinate - ??
+% Get the boundary coordinate and region - ??
 boundary = bwboundaries(maskRegion);
 boundaryCoords = cell2mat(boundary);
 boundaryCoordX = boundaryCoords(:,1);
 boundaryCoordY = boundaryCoords(:,2);
+boundaryRegion = zeros(size(maskRegion));
+for i = 1 : size(boundaryCoords,1) 
+    boundaryRegion(boundaryCoordX(i),boundaryCoordY(i))=1;
+end
 
 % Mask region excluding the boundary - ?
 omega = maskRegion;
@@ -22,43 +25,78 @@ for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
 
-% Boundary condition: f = f*, f(target) is unknown, f*(source) is known
-targetImageMaskRegionBoundaryCoord = boundaryCoords;
-targetImageMaskRegionBoundaryValue = zeros(size(maskRegion));
-for i = 1 : size(boundaryCoords,1)
-    targetImageMaskRegionBoundaryValue(boundaryCoordX(i),boundaryCoordY(i))=sourceImage(boundaryCoordX(i),boundaryCoordY(i));
-end
-
 % Now construct the linear function
+[omegaPixelCoordX, omegaPixelCoordY] = find(omega);
+gridSize = length(omegaPixelCoordX);
+
+%% Construct A: Laplacian (Efficiency is Terrible for Big Region)
+% disp('Efficiency - hardcoding');
+% tic
+% for i = 1:gridSize
+%     for j = 1:gridSize
+%         % Diagonal values are 4
+%         if(i == j)
+%             A(i,j) = 4;
+%         else
+%             % if p_j in N_pi
+%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i)-1 && omegaPixelCoordY(j) == omegaPixelCoordY(i))
+%                 % if pj is up of pi
+%                 A(i,j) = -1;
+%             end
+%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i) && omegaPixelCoordY(j) == omegaPixelCoordY(i)+1)
+%                 % if pj is right of pi
+%                 A(i,j) = -1;
+%             end
+%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i)+1 && omegaPixelCoordY(j) == omegaPixelCoordY(i))
+%                 % if pj is down of pi
+%                 A(i,j) = -1;
+%             end
+%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i) && omegaPixelCoordY(j) == omegaPixelCoordY(i)-1)
+%                 % if pj is left of pi
+%                 A(i,j) = -1;
+%             end
+%         end
+%     end
+% end
+% toc
+
+%% Construct A: Laplacian with Built-in Function
 omegaPixelCoords = find(omega);
-exBoundaryMaskOrder = zeros(size(omega));
+omegaPixelOrder = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
-    exBoundaryMaskOrder(omegaPixelCoords(i))=i;
+    omegaPixelOrder(omegaPixelCoords(i))=i;
+end
+disp('Efficiency - delsq()');
+tic
+A = delsq(omegaPixelOrder);
+toc
+
+%% Construct b: Boundary Conditions
+for i = 1: gridSize
+    % Boundary on left side
+    if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)-1) == 1)
+        b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)-1);
+    end
+    % Boundary on right side
+    if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)+1) == 1)
+        b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1);
+    end
+     % Boundary on top side
+    if(boundaryRegion(omegaPixelCoordX(i)-1,omegaPixelCoordY(i)) == 1)
+        b(i) = b(i) + targetImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i));
+    end
+    % Boundary on bottom side
+    if(boundaryRegion(omegaPixelCoordX(i)+1,omegaPixelCoordY(i)) == 1)
+        b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i));
+    end 
 end
 
-A = delsq(exBoundaryMaskOrder);
-B = del2(exBoundaryMaskOrder);
-
-[maskXCoord, maskYCoord] = find(maskRegion);
-for i =1:size(maskXCoord)
-    neighbour1 = targetImageMaskRegionBoundaryValue(maskXCoord(i)-1, maskYCoord(i));
-    neighbour2 = targetImageMaskRegionBoundaryValue(maskXCoord(i)+1, maskYCoord(i));
-    neighbour3 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)-1);
-    neighbour4 = targetImageMaskRegionBoundaryValue(maskXCoord(i), maskYCoord(i)+1);
-    targetImage(maskXCoord(i), maskYCoord(i)) = neighbour1 + neighbour2 + neighbour3 + neighbour4;
-end
-
-b = targetImage(omegaPixelCoords);
-
-% Solve the equation
+%% Solve the equation
 x = A\b;
 
-% Find the coordinate for each pixel in the mask
-[row, col] = find(omega);
-
-for i = 1:size(row)
-    result(row(i),col(i))=x(i);
+for i = 1:gridSize
+    targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i))=x(i);
 end
 
 figure;
-imshow(result/255);
+imshow(targetImage/255);
