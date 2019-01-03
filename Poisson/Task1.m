@@ -9,7 +9,7 @@ targetImage = double(sourceImage);
 % Return the binary mask
 maskRegion = roipoly(im2double(sourceImage));
 
-% Get the boundary coordinate and region - ??
+% Get the boundary coordinate and region - D.Omega
 boundary = bwboundaries(maskRegion);
 boundaryCoords = cell2mat(boundary);
 boundaryCoordX = boundaryCoords(:,1);
@@ -19,7 +19,7 @@ for i = 1 : size(boundaryCoords,1)
     boundaryRegion(boundaryCoordX(i),boundaryCoordY(i))=1;
 end
 
-% Mask region excluding the boundary - ?
+% Mask region excluding the boundary - Omega
 omega = maskRegion;
 for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;

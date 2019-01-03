@@ -7,7 +7,7 @@ sourceImage = double(imread("./images/portrait.jpg"));
 targetImage = double(imread("./images/portrait.jpg"));
 
 % Task 2 - Grayscale Image with Importing Gradients and Mixing Gradients
-mySeamlessCloning(sourceImage, targetImage, false);
+SeamlessCloning(sourceImage, targetImage, false);
 
 % Task 3 - Colored Image
-mySeamlessCloning(sourceImage, targetImage, true);
+% SeamlessCloning(sourceImage, targetImage, true);

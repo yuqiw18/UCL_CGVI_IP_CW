@@ -1,15 +1,15 @@
-function mySeamlessCloning(sourceImage, targetImage, rgbMode)
+function SeamlessCloning(sourceImage, targetImage, rgbMode)
 
 if(rgbMode == false)
-targetImage = targetImage(:,:,1);
-sourceImage = sourceImage(:,:,1);
+    targetImage = targetImage(:,:,1);
+    sourceImage = sourceImage(:,:,1);
 end
 
-%% freedom cropping
-figure;title('target Image'),imshow(targetImage/255);
 [mask_target, target_col, target_row ]= roipoly(targetImage/255);
-line(target_col,target_row);
-figure;title('point a position to paste target image'),imshow(sourceImage/255);
+
+figure;
+imshow(sourceImage/255);
+title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [offset_col, offset_row] = ginput(1);
 
 %% cropping mask from image in terms of the input 
@@ -18,9 +18,6 @@ target_col = int16(target_col);
 target_row = int16(target_row); 
 source_col = (target_col)+int16(offset(1));
 source_row = (target_row)+int16(offset(2));
-imshow(sourceImage/255),title('point a position to paste target image');
-line(source_col,source_row);
-
 result_importing = sourceImage;
 result_mixing = sourceImage;
 [~,~,c]=size(sourceImage);
