@@ -1,13 +1,5 @@
-clear;
-clc;
-
+function MixingGradients(sourceImageRaw, targetImageRaw, rgbMode)
 %% Image Setup
-rgbMode = true;
-
-% Load images
-sourceImageRaw = imread("./images/graffiti.jpg");
-targetImageRaw = imread("./images/wood.jpg");
-
 if (rgbMode == false)
     sourceImage = double(rgb2gray(sourceImageRaw));
     targetImage = double(rgb2gray(targetImageRaw));  
@@ -155,3 +147,5 @@ end
 %% Output
 figure();
 imshow(result/255);
+title("Mixing Gradients Result");
+end
