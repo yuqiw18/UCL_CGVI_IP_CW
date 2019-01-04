@@ -2,11 +2,11 @@ clear;
 clc;
 
 %% Image Setup
-rgbMode = false;
+rgbMode = true;
 
 % Load images
-sourceImageRaw = imread("./images/jet.jpg");
-targetImageRaw = imread("./images/sky.jpg");
+sourceImageRaw = imread("./images/portrait.jpg");
+targetImageRaw = imread("./images/wall.jpg");
 
 if (rgbMode == false)
     sourceImage = double(rgb2gray(sourceImageRaw));
@@ -26,10 +26,10 @@ result = targetImage;
 figure;
 imshow(targetImage/255);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
-[targetPosX, targetPosY] = ginput(1);
+[targetPosX, targetPosY] = getpts;
 
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
+targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask
@@ -42,13 +42,6 @@ for i = 1 : size(boundaryCoords,1)
     boundaryRegion(boundaryCoordX(i),boundaryCoordY(i))=1;
 end
 
-% Mask region excluding the boundary - Omega(Target)
-omega = targetMaskRegion;
-for i = 1:size(boundaryCoordX)
-    omega(boundaryCoordX(i),boundaryCoordY(i))=0;
-end
-[omegaPixelCoordX, omegaPixelCoordY] = find(omega);
-
 % Boundary of Source Image Mask
 sourceBoundary = bwboundaries(sourceMaskRegion);
 sourceBoundaryCoords = cell2mat(sourceBoundary);
@@ -58,6 +51,13 @@ sourceBoundaryRegion = zeros(size(sourceMaskRegion));
 for i = 1 : size(sourceBoundaryCoords,1) 
     sourceBoundaryRegion(sourceBoundaryCoordX(i),sourceBoundaryCoordY(i))=1;
 end
+
+% Mask region excluding the boundary - Omega(Target)
+omega = targetMaskRegion;
+for i = 1:size(boundaryCoordX)
+    omega(boundaryCoordX(i),boundaryCoordY(i))=0;
+end
+[omegaPixelCoordX, omegaPixelCoordY] = find(omega);
 
 % Mask region excluding the boundary - Omega(Source)
 sourceOmega = sourceMaskRegion;

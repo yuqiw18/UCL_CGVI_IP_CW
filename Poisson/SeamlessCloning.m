@@ -4,8 +4,8 @@ clear;
 clc;
 
 rgbMode = true;
-sourceImage = double(imread("./images/patterns.jpg"));
-targetImage = double(imread("./images/wood.jpg"));
+sourceImage = double(imread("./images/jet.jpg"));
+targetImage = double(imread("./images/sky.jpg"));
 
 if(rgbMode == false)
     sourceImage = sourceImage(:,:,1);
