@@ -3,8 +3,8 @@ clc;
 
 %% 
 % Load images
-sourceImage = double(rgb2gray(imread("./images/portrait.jpg")))/255;
-targetImage = double(rgb2gray(imread("./images/wood.jpg")))/255;
+sourceImage = double(rgb2gray(imread("./images/jet.jpg")))/255;
+targetImage = double(rgb2gray(imread("./images/sky.jpg")))/255;
 result = targetImage;
 
 % Select mask region
