@@ -3,21 +3,21 @@ clc;
 
 %% 
 % Load images
-sourceImage = double(rgb2gray(imread("./images/portrait.jpg")))/255;
-targetImage = double(rgb2gray(imread("./images/wood.jpg")))/255;
+sourceImage = double(rgb2gray(imread("./images/portrait.jpg")));
+targetImage = double(rgb2gray(imread("./images/wood.jpg")));
 result = targetImage;
 
 % Select mask region
-[sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY]= roipoly(sourceImage);
+[sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY]= roipoly(sourceImage/255);
 
 % Select position
 figure;
-imshow(targetImage);
+imshow(targetImage/255);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = ginput(1);
 
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
+targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %%
 targetBoundary = bwboundaries(targetMaskRegion);
@@ -135,6 +135,6 @@ for i = 1:gridSize
 end
 
 figure();
-imshow(result);
+imshow(result/255);
 
 

@@ -3,11 +3,11 @@ clear;
 clc;
 
 % Load the image
-sourceImage = rgb2gray(imread("./images/portrait.jpg"));
-targetImage = double(sourceImage);
+sourceImage = double(rgb2gray(imread("./images/portrait.jpg")));
+targetImage = sourceImage;
 
 % Return the binary mask
-maskRegion = roipoly(im2double(sourceImage));
+maskRegion = roipoly(sourceImage/255);
 
 % Get the boundary coordinate and region - D.Omega
 boundary = bwboundaries(maskRegion);
