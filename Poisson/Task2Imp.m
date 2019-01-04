@@ -28,8 +28,23 @@ imshow(targetImage/255);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
+% disp(targetPosX);
+% disp(targetPosY);
+% 
+% testX = sourceMaskRegionCoordX-1;
+% testY = sourceMaskRegionCoordY-1;
+% 
+% disp(sourceMaskRegionCoordX);
+% disp(testX);
+% 
+% shiftingTestX = sourceMaskRegionCoordX - min(sourceMaskRegionCoordX);
+% disp(shiftingTestX);
+% 
+% shiftingTestX2 = sourceMaskRegionCoordX - min(sourceMaskRegionCoordX)+targetPosX;
+% disp(shiftingTestX2);
+
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
+targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %%
 %calculate the divergence using laplace caculator

@@ -1,4 +1,4 @@
-function MixingGradients(sourceImageRaw, targetImageRaw, rgbMode)
+function result = MixingGradients(sourceImageRaw, targetImageRaw, rgbMode)
 %% Image Setup
 if (rgbMode == false)
     sourceImage = double(rgb2gray(sourceImageRaw));
@@ -22,6 +22,7 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 
 % Generate the mask for selected position
 targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
+%targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask
@@ -46,6 +47,7 @@ end
 
 % Mask region excluding the boundary - Omega(Target)
 omega = targetMaskRegion;
+omegaPixelCoords = find(omega);
 for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
@@ -58,6 +60,7 @@ for i = 1:size(sourceBoundaryCoordX)
 end
 [sourceOmegaPixelCoordX,sourceOmegaPixelCoordY] = find(sourceOmega);
 
+result(omegaPixelCoords)=0;
 %% Construct Matrix A
 omegaPixelCoords = find(omega);
 omegaPixelOrder = zeros(size(omega));
