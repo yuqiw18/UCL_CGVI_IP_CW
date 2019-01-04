@@ -5,8 +5,8 @@ clc;
 rgbMode = true;
 
 % Load images
-sourceImageRaw = imread("./images/graffiti.jpg");
-targetImageRaw = imread("./images/wood.jpg");
+sourceImageRaw = imread("./images/cows.jpg");
+targetImageRaw = imread("./images/cows.jpg");
 
 if (rgbMode == false)
     sourceImage = double(rgb2gray(sourceImageRaw));
@@ -28,8 +28,13 @@ imshow(targetImage/255);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
+shiftX=-min(sourceMaskRegionCoordX)+1+targetPosX;
+shiftY=-min(sourceMaskRegionCoordY)+1+targetPosY;
+%shiftX=0;
+%shiftY=0;
+
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
+targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX+shiftX,sourceMaskRegionCoordY+shiftY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask

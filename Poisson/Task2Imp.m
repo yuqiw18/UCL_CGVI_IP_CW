@@ -5,8 +5,8 @@ clc;
 rgbMode = true;
 
 % Load images
-sourceImageRaw = imread("./images/graffiti.jpg");
-targetImageRaw = imread("./images/wood.jpg");
+sourceImageRaw = imread("./images/falcon.jpg");
+targetImageRaw = imread("./images/sky.jpg");
 
 if (rgbMode == false)
     sourceImage = double(rgb2gray(sourceImageRaw));
@@ -43,15 +43,28 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 % shiftingTestX2 = sourceMaskRegionCoordX - min(sourceMaskRegionCoordX)+targetPosX;
 % disp(shiftingTestX2);
 
-% Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
+shiftX=-min(sourceMaskRegionCoordX)+1+targetPosX;
+shiftY=-min(sourceMaskRegionCoordY)+1+targetPosY;
+shiftX=0;
+shiftY=0;
 
+% Generate the mask for selected position
+targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX+shiftX,sourceMaskRegionCoordY+shiftY);
+
+% subplot(1,2,1);
+% imshow(sourceMaskRegion);
+% subplot(1,2,2);
+% imshow(targetMaskRegion);
+
+
+%shiftX=0;
+%shiftY=0;
 %%
 %calculate the divergence using laplace caculator
 templt = [0 -1 0; -1 4 -1; 0 -1 0];
 Source_Laplace = imfilter((sourceImage), templt, 'replicate');
 
-targetBoundary = bwboundaries(targetMaskRegion);
+targetBoundary = bwboundaries(targetMaskRegion,'noholes');
 boundaryCoords = cell2mat(targetBoundary);
 boundaryCoordX = boundaryCoords(:,1);
 boundaryCoordY = boundaryCoords(:,2);
@@ -60,8 +73,20 @@ for i = 1 : size(boundaryCoords,1)
     boundaryRegion(boundaryCoordX(i),boundaryCoordY(i))=1;
 end
 
-sourceBoundary = bwboundaries(sourceMaskRegion);
+sourceBoundary = bwboundaries(sourceMaskRegion,'noholes');
 sourceBoundaryCoords = cell2mat(sourceBoundary);
+
+% [w1,~]=size(sourceBoundaryCoords);
+% [w2,~]=size(boundaryCoords);
+% 
+% while (w1 ~= w2)
+%     disp("Mismatching coord");
+%     sourceBoundary = bwboundaries(sourceMaskRegion,'noholes');
+%     sourceBoundaryCoords = cell2mat(sourceBoundary);
+%     [w1,~]=size(sourceBoundaryCoords);
+%     [w2,~]=size(boundaryCoords);
+% end
+
 sourceBoundaryCoordX = sourceBoundaryCoords(:,1);
 sourceBoundaryCoordY = sourceBoundaryCoords(:,2);
 sourceBoundaryRegion = zeros(size(sourceMaskRegion));
