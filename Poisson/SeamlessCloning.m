@@ -1,25 +1,33 @@
-function SeamlessCloning(sourceImage, targetImage , rgbMode)
+%function SeamlessCloning(sourceImage, targetImage , rgbMode)
+
+clear;
+clc;
+
+rgbMode = true;
+sourceImage = double(imread("./images/patterns.jpg"));
+targetImage = double(imread("./images/wood.jpg"));
 
 if(rgbMode == false)
     sourceImage = sourceImage(:,:,1);
     targetImage = targetImage(:,:,1);
 end
 
-[mask_target, target_col, target_row ]= roipoly(sourceImage/255);
+[sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY ]= roipoly(sourceImage/255);
 
 figure;
 imshow(targetImage/255);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
-[offset_col, offset_row] = ginput(1);
+[targetPosX, targetPosY] = ginput(1);
 
 %% cropping mask from image in terms of the input 
-offset = [abs(target_col(1)-offset_col), abs(target_row(1) -offset_row)];
-target_col = int16(target_col); 
-target_row = int16(target_row); 
-source_col = (target_col)+int16(offset(1));
-source_row = (target_row)+int16(offset(2));
-result_importing = targetImage;
-result_mixing = targetImage;
+offset = [abs(sourceMaskRegionCoordX(1)-targetPosX), abs(sourceMaskRegionCoordY(1) -targetPosY)];
+sourceMaskRegionCoordX = int16(sourceMaskRegionCoordX); 
+sourceMaskRegionCoordY = int16(sourceMaskRegionCoordY); 
+source_col = (sourceMaskRegionCoordX)+int16(offset(1));
+source_row = (sourceMaskRegionCoordY)+int16(offset(2));
+
+importingGradients = targetImage;
+mixingGradients = targetImage;
 [~,~,channel]=size(targetImage);
 
 %% 
@@ -27,15 +35,15 @@ for c = 1:channel
 imgSingleChannel_target = sourceImage(:,:,c);
 imgSingleChannel_source = targetImage(:,:,c);
 
-mask_target = roipoly(imgSingleChannel_target/255,target_col,target_row);
+sourceMaskRegion = roipoly(imgSingleChannel_target/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 mask_source = roipoly(imgSingleChannel_source/255,source_col,source_row);
 
 maskSource_value = imgSingleChannel_source .* mask_source;
-maskTarget_value = imgSingleChannel_target .* mask_target;
+maskTarget_value = imgSingleChannel_target .* sourceMaskRegion;
 
 indexOfBorder_target = cell2mat(bwboundaries(maskTarget_value));
 % crop the border from mask to get a smaller mask
-small_targetMask = mask_target;
+small_targetMask = sourceMaskRegion;
 for n =1:size(indexOfBorder_target,1)
     small_targetMask(indexOfBorder_target(n,1), indexOfBorder_target(n,2)) = 0;
 end
@@ -48,16 +56,19 @@ for n =1:size(indexOfSmallTargetMask);
 end
 % create a laplacian operator A based on the smaller mask
 A = delsq(smallTargetMask_order);
+
+
 %% caculate destination function f* defines over (image - cropped_part)
 fDestinationBorder_index = zeros(size(indexOfBorder_target));
 fDestinationBorder_index(:,1) = int16(indexOfBorder_target(:,1))+ (offset(2));
 fDestinationBorder_index(:,2) = int16(indexOfBorder_target(:,2))+ (offset(1));
+
 fDestinationBorder_value = zeros(size(maskTarget_value));
 for n =1:size(fDestinationBorder_index,1);
     fDestinationBorder_value(indexOfBorder_target(n,1),indexOfBorder_target(n,2)) =...
         imgSingleChannel_source(fDestinationBorder_index(n,1),fDestinationBorder_index(n,2));
 end
-[maskTarget_row, maskTarget_col] = find(mask_target);
+[maskTarget_row, maskTarget_col] = find(sourceMaskRegion);
 f_destination = zeros(size(imgSingleChannel_target));
 for n =1:size(maskTarget_row)
     neighbour1 = fDestinationBorder_value(maskTarget_row(n)-1, maskTarget_col(n));
@@ -80,7 +91,7 @@ for n =1:size(smallTargetMask_row)
 end
 %% Importing Gradients
 Vpq_importing  = zeros(size(imgSingleChannel_target));
-[maskTarget_row, maskTarget_col] = find(mask_target);
+[maskTarget_row, maskTarget_col] = find(sourceMaskRegion);
 for n =1:size(maskTarget_row)
     certain = maskTarget_value(maskTarget_row(n),maskTarget_col(n));
     neighbour1 = maskTarget_value(maskTarget_row(n)-1,maskTarget_col(n));
@@ -99,7 +110,7 @@ result_importingGradient = imgSingleChannel_source;
 for n =1:size(smallTargetMask_row);
     result_importingGradient(int16(smallTargetMask_row(n)+offset(2)),int16(smallTargetMask_col(n)+ offset(1))) = f_importing(n);
 end
-result_importing(:,:,c) = result_importingGradient;
+importingGradients(:,:,c) = result_importingGradient;
 
 %% Mixing Gradients
 Vpq_mixing = zeros(size(imgSingleChannel_target));
@@ -151,11 +162,15 @@ result_mixingGradient = imgSingleChannel_source;
 for n =1:size(smallTargetMask_row);
     result_mixingGradient(int16(smallTargetMask_row(n)+offset(2)),int16(smallTargetMask_col(n)+offset(1))) = f_mixing(n);
 end
-%imshow(result_mixingGradient/255);title('mixing gradient')
 
-result_mixing(:,:,c) = result_mixingGradient;
+mixingGradients(:,:,c) = result_mixingGradient;
 end
 
-figure,imshow(result_importing/255);title('Importing Gradients');
-figure,imshow(result_mixing/255);title('Mixing Gradients');
-end
+subplot(1,2,1);
+imshow(importingGradients/255);
+title('Importing Gradients');
+
+subplot(1,2,2);
+imshow(mixingGradients/255);
+title('Mixing Gradients');
+%end

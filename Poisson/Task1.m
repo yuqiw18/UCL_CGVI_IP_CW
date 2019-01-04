@@ -33,37 +33,6 @@ gridSize = length(omegaPixelCoordX);
 A = sparse(gridSize,gridSize,0);
 b = zeros(gridSize,1);
 
-%% Construct A: Laplacian (Efficiency is Terrible for Big Region)
-% disp('Efficiency - hardcoding');
-% tic
-% for i = 1:gridSize
-%     for j = 1:gridSize
-%         % Diagonal values are 4
-%         if(i == j)
-%             A(i,j) = 4;
-%         else
-%             % if p_j in N_pi
-%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i)-1 && omegaPixelCoordY(j) == omegaPixelCoordY(i))
-%                 % if pj is up of pi
-%                 A(i,j) = -1;
-%             end
-%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i) && omegaPixelCoordY(j) == omegaPixelCoordY(i)+1)
-%                 % if pj is right of pi
-%                 A(i,j) = -1;
-%             end
-%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i)+1 && omegaPixelCoordY(j) == omegaPixelCoordY(i))
-%                 % if pj is down of pi
-%                 A(i,j) = -1;
-%             end
-%             if(omegaPixelCoordX(j) == omegaPixelCoordX(i) && omegaPixelCoordY(j) == omegaPixelCoordY(i)-1)
-%                 % if pj is left of pi
-%                 A(i,j) = -1;
-%             end
-%         end
-%     end
-% end
-% toc
-
 %% Construct A: Laplacian with Built-in Function
 omegaPixelCoords = find(omega);
 omegaPixelOrder = zeros(size(omega));
@@ -74,6 +43,8 @@ disp('Efficiency - delsq()');
 tic
 A = delsq(omegaPixelOrder);
 toc
+
+plot(A);
 
 %% Construct b: Boundary Conditions
 for i = 1: gridSize
