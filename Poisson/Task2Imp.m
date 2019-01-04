@@ -19,20 +19,12 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 % Generate the mask for selected position
 targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
-figure;
-imshow(sourceMaskRegion);
-
-figure;
-imshow(targetMaskRegion);
-
-
 %%
 %calculate the divergence using laplace caculator
 templt = [0 -1 0; -1 4 -1; 0 -1 0];
 Source_Laplace = imfilter((sourceImage), templt, 'replicate');
-%imshow(Source_Laplace);
-
 SourceImg_grad = gradient(sourceImage);
+
 V_pq = imfilter((SourceImg_grad), templt, 'replicate');
 
 targetBoundary = bwboundaries(targetMaskRegion);
@@ -53,9 +45,6 @@ end
 % % Now construct the linear function
 [omegaPixelCoordX, omegaPixelCoordY] = find(omega);
 gridSize = length(omegaPixelCoordX);
-
-A = sparse(gridSize,gridSize,0);
-b = zeros(gridSize,1);
 
 sourceBoundary = bwboundaries(sourceMaskRegion);
 sourceBoundaryCoords = cell2mat(sourceBoundary);

@@ -44,8 +44,6 @@ tic
 A = delsq(omegaPixelOrder);
 toc
 
-plot(A);
-
 %% Construct b: Boundary Conditions
 for i = 1: gridSize
     % Boundary on left side
