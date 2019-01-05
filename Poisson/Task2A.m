@@ -1,4 +1,4 @@
 %% Task 2A
-sourceImage = imread("./images/graffiti.jpg");
-targetImage = imread("./images/wall.jpg");
+sourceImage = imread("./images/cows.jpg");
+targetImage = imread("./images/cows.jpg");
 ImportingGradients(sourceImage, targetImage, false);

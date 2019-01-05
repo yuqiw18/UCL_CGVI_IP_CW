@@ -1,4 +1,4 @@
 %% Task 2B
-sourceImage = imread("./images/graffiti.jpg");
-targetImage = imread("./images/wall.jpg");
+sourceImage = imread("./images/cows.jpg");
+targetImage = imread("./images/cows.jpg");
 MixingGradients(sourceImage, targetImage, false);

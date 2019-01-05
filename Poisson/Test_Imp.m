@@ -43,19 +43,38 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 % shiftingTestX2 = sourceMaskRegionCoordX - min(sourceMaskRegionCoordX)+targetPosX;
 % disp(shiftingTestX2);
 
-shiftX=-min(sourceMaskRegionCoordX)+1+targetPosX;
-shiftY=-min(sourceMaskRegionCoordY)+1+targetPosY;
-shiftX=0;
-shiftY=0;
 
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX+shiftX,sourceMaskRegionCoordY+shiftY);
 
-% subplot(1,2,1);
+targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
+
+% targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
+% 
+% testRegion = sourceMaskRegion;
+% testRegion(1:min(sourceMaskRegionCoordY)-1,:)=[];
+% testRegion(:,1:min(sourceMaskRegionCoordX)-1)=[];
+% [wt,ht]= size(testRegion);
+% 
+% leftRegion = zeros(wt,round(targetPosX));
+% newTestRegion = [leftRegion testRegion];
+% 
+% [wt,ht]= size(newTestRegion);
+% 
+% topRegion = zeros(round(targetPosY),ht);
+% 
+% newNewTestRegion = [topRegion;newTestRegion];
+% 
+% 
+% targetMaskRegion = logical(newNewTestRegion);
+
+% subplot(2,2,1);
 % imshow(sourceMaskRegion);
-% subplot(1,2,2);
+% subplot(2,2,2);
 % imshow(targetMaskRegion);
-
+% subplot(2,2,3);
+% imshow(newNewTestRegion);
+% subplot(2,2,4);
+% imshow(newTestRegion);
 
 %shiftX=0;
 %shiftY=0;

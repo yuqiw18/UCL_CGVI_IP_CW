@@ -1,3 +1,4 @@
+%% Importing Gradients with Colored Image Compatibility
 function result = ImportingGradients(sourceImageRaw, targetImageRaw, rgbMode)
 %% Image Setup
 if (rgbMode == false)
@@ -21,7 +22,8 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
 % Generate the mask for selected position
-targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
+targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
+%targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 %targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %% Define Boundary and Omega
