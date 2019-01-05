@@ -17,7 +17,7 @@ sourceMaskRegion = [leftRegion sourceMaskRegion];
 topRegion = zeros(round(targetPosY),height);
 sourceMaskRegion = [topRegion;sourceMaskRegion];
 
-% No need to make the size of mask exactly same as the target image
+% There is no need to make the size of mask exactly same as the target image
 % What is required here is to make sure that the target mask region has correct coverage of
 % pixels
 

@@ -40,11 +40,11 @@ gridSize = length(omegaPixelCoordX);
 %% Construct Matrix A
 omegaPixelCoords = find(omega);
 result(omegaPixelCoords)=0;
-omegaPixelOrder = zeros(size(omega));
+omegaPixelSequence = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
-    omegaPixelOrder(omegaPixelCoords(i))=i;
+    omegaPixelSequence(omegaPixelCoords(i))=i;
 end
-A = delsq(omegaPixelOrder);
+A = delsq(omegaPixelSequence);
 
 %% Texture Flattening
 if (editingMode == "TF")
@@ -58,28 +58,24 @@ if (editingMode == "TF")
             targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
             targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
 
-            neighbour1 = 0;
-            neighbour2 = 0;
-            neighbour3 = 0;
-            neighbour4 = 0;
+            v1 = 0;
+            v2 = 0;
+            v3 = 0;
+            v4 = 0;
 
             if abs(targetMaskNeighbour1) > edgeThreshold
-                neighbour1 = targetMaskNeighbour1;
+                v1 = targetMaskNeighbour1;
             end
-
             if abs(targetMaskNeighbour2) > edgeThreshold
-                neighbour2 = targetMaskNeighbour2;
+                v2 = targetMaskNeighbour2;
             end
-
             if abs(targetMaskNeighbour3) > edgeThreshold
-                neighbour3 = targetMaskNeighbour3;
+                v3 = targetMaskNeighbour3;
             end
-
             if abs(targetMaskNeighbour4) > edgeThreshold
-                neighbour4 = targetMaskNeighbour4;
+                v4 = targetMaskNeighbour4;
             end  
-
-            V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = neighbour1 + neighbour2 + neighbour3 + neighbour4; 
+            V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = v1 + v2 + v3 + v4; 
         end
     end
 end
@@ -97,12 +93,12 @@ if (editingMode == "LIC")
             targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
             targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
 
-            neighbour1 = (alpha^beta)*(abs(targetMaskNeighbour1))^(-beta)* targetMaskNeighbour1;
-            neighbour2 = (alpha^beta)*(abs(targetMaskNeighbour2))^(-beta)* targetMaskNeighbour2;
-            neighbour3 = (alpha^beta)*(abs(targetMaskNeighbour3))^(-beta)* targetMaskNeighbour3;
-            neighbour4 = (alpha^beta)*(abs(targetMaskNeighbour4))^(-beta)* targetMaskNeighbour4;
+            v1 = (alpha^beta)*(abs(targetMaskNeighbour1))^(-beta)* targetMaskNeighbour1;
+            v2 = (alpha^beta)*(abs(targetMaskNeighbour2))^(-beta)* targetMaskNeighbour2;
+            v3 = (alpha^beta)*(abs(targetMaskNeighbour3))^(-beta)* targetMaskNeighbour3;
+            v4 = (alpha^beta)*(abs(targetMaskNeighbour4))^(-beta)* targetMaskNeighbour4;
             
-            V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = neighbour1 + neighbour2 + neighbour3 + neighbour4; 
+            V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = v1 + v2 + v3 + v4; 
         end
     end
 end
@@ -130,13 +126,10 @@ for c=1:channel
         end 
         b(i) = b(i) + V(omegaPixelCoordX(i),omegaPixelCoordY(i),c);
     end
-
     x = A\b;
-
     for i = 1:gridSize
         singleChannelResult(omegaPixelCoordX(i),omegaPixelCoordY(i)) = x(i);
     end
-
     result(:,:,c) = singleChannelResult;
 end
 

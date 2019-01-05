@@ -31,11 +31,11 @@ omegaPixelCoords = find(omega);
 result(omegaPixelCoords)=0;
 
 %% Construct Matrix A: Laplacian with Built-in Discrete Laplacian Function
-omegaPixelOrder = zeros(size(omega));
+omegaPixelSequence = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
-    omegaPixelOrder(omegaPixelCoords(i))=i;
+    omegaPixelSequence(omegaPixelCoords(i))=i;
 end
-A = delsq(omegaPixelOrder);
+A = delsq(omegaPixelSequence);
 
 %% Construct b: Boundary Conditions
 gridSize = length(omegaPixelCoordX);

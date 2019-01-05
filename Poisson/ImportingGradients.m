@@ -72,11 +72,11 @@ end
 %% Construct Matrix A: Laplacian with Built-in Discrete Laplacian Function
 omegaPixelCoords = find(omega);
 result(omegaPixelCoords)=0;
-omegaPixelOrder = zeros(size(omega));
+omegaPixelSequence = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
-    omegaPixelOrder(omegaPixelCoords(i))=i;
+    omegaPixelSequence(omegaPixelCoords(i))=i;
 end
-A = delsq(omegaPixelOrder);
+A = delsq(omegaPixelSequence);
 
 %% Importing Gradients
 importingGradients = zeros(size(sourceImage));
@@ -114,14 +114,11 @@ for c=1:channel
             b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i),c);
         end 
         b(i) = b(i) + importingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
-    end
-    
+    end   
     x = A\b;
-
     for i = 1:gridSize
         singleChannelResult(omegaPixelCoordX(i),omegaPixelCoordY(i)) = x(i);
     end
-
     result(:,:,c) = singleChannelResult;
 end
 

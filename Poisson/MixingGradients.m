@@ -64,24 +64,22 @@ end
 %% Construct Matrix A: Laplacian with Built-in Discrete Laplacian Function
 omegaPixelCoords = find(omega);
 result(omegaPixelCoords)=0;
-omegaPixelOrder = zeros(size(omega));
+omegaPixelSequence = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
-    omegaPixelOrder(omegaPixelCoords(i))=i;
+    omegaPixelSequence(omegaPixelCoords(i))=i;
 end
-A = delsq(omegaPixelOrder);
+A = delsq(omegaPixelSequence);
 
 %% Mixing Gradients
 mixingGradients = zeros(size(sourceImage));
 for c = 1: channel
     for i = 1:size(omegaPixelCoordX)
-        %V_p
         targetMaskCentralValue = targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i),c); 
         targetMaskNeighbour1 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)-1, omegaPixelCoordY(i),c);
         targetMaskNeighbour2 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)+1, omegaPixelCoordY(i),c);
         targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
         targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
 
-        %V_q
         sourceMaskCentralValue = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
         sourceMaskNeighbour1 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i)-1,sourceOmegaPixelCoordY(i),c);
         sourceMaskNeighbour2 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i)+1,sourceOmegaPixelCoordY(i),c);
@@ -89,29 +87,26 @@ for c = 1: channel
         sourceMaskNeighbour4 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)+1,c);
 
         if abs(targetMaskNeighbour1) < abs(sourceMaskNeighbour1)
-            neighbour1 = sourceMaskNeighbour1;
+            v1 = sourceMaskNeighbour1;
         else
-            neighbour1 = targetMaskNeighbour1;
+            v1 = targetMaskNeighbour1;
         end
-
         if abs(targetMaskNeighbour2) < abs(sourceMaskNeighbour2)
-            neighbour2 = sourceMaskNeighbour2;
+            v2 = sourceMaskNeighbour2;
         else
-            neighbour2 = targetMaskNeighbour2;
+            v2 = targetMaskNeighbour2;
         end
-
         if abs(targetMaskNeighbour3) < abs(sourceMaskNeighbour3)
-            neighbour3 = sourceMaskNeighbour3;
+            v3 = sourceMaskNeighbour3;
         else
-            neighbour3 = targetMaskNeighbour3;
+            v3 = targetMaskNeighbour3;
         end
-
         if abs(targetMaskNeighbour4) < abs(sourceMaskNeighbour4)
-            neighbour4 = sourceMaskNeighbour4;
+            v4 = sourceMaskNeighbour4;
         else
-            neighbour4 = targetMaskNeighbour4;
+            v4 = targetMaskNeighbour4;
         end   
-        mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c) = neighbour1 + neighbour2 + neighbour3 + neighbour4; 
+        mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c) = v1 + v2 + v3 + v4; 
     end
 end
 
@@ -139,13 +134,10 @@ for c=1:channel
         end 
         b(i) = b(i) + mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
     end
-
     x = A\b;
-
     for i = 1:gridSize
         singleChannelResult(omegaPixelCoordX(i),omegaPixelCoordY(i)) = x(i);
     end
-
     result(:,:,c) = singleChannelResult;
 end
 
