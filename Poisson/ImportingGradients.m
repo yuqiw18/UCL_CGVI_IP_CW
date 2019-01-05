@@ -23,11 +23,10 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 
 % Generate the mask for selected position
 targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
-%targetMaskRegion = roipoly(targetImage,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 %targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %% Define Boundary and Omega
-
+% Boundary of Target Image Mask - Diff.Omega
 targetBoundary = bwboundaries(targetMaskRegion);
 boundaryCoords = cell2mat(targetBoundary);
 boundaryCoordX = boundaryCoords(:,1);
@@ -37,6 +36,7 @@ for i = 1 : size(boundaryCoords,1)
     boundaryRegion(boundaryCoordX(i),boundaryCoordY(i))=1;
 end
 
+% Boundary of Source Image Mask - Diff.Omega
 sourceBoundary = bwboundaries(sourceMaskRegion);
 sourceBoundaryCoords = cell2mat(sourceBoundary);
 sourceBoundaryCoordX = sourceBoundaryCoords(:,1);
@@ -48,25 +48,23 @@ end
 
 % Mask region excluding the boundary - Omega
 omega = targetMaskRegion;
-omegaPixelCoords = find(omega);
+%omegaPixelCoords = find(omega);
+%result(omegaPixelCoords)=0;
 for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
-
-% % Now construct the linear function
 [omegaPixelCoordX, omegaPixelCoordY] = find(omega);
-result(omegaPixelCoords)=0;
 
 % Mask region excluding the boundary - Omega
 sourceOmega = sourceMaskRegion;
 for i = 1:size(sourceBoundaryCoordX)
     sourceOmega(sourceBoundaryCoordX(i),sourceBoundaryCoordY(i))=0;
 end
-
 [sourceOmegaPixelCoordX,sourceOmegaPixelCoordY] = find(sourceOmega);
 
 %% Construct Matrix A
 omegaPixelCoords = find(omega);
+result(omegaPixelCoords)=0;
 omegaPixelOrder = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
     omegaPixelOrder(omegaPixelCoords(i))=i;
@@ -74,21 +72,17 @@ end
 A = delsq(omegaPixelOrder);
 
 %% Importing Gradients
-% importingGradients = zeros(size(sourceImage));
-% for c = 1: channel
-%     for i = 1:size(omegaPixelCoordX)
-%         sourceMaskCentralPixel = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
-%         sourceMaskNeighbour1 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i)-1,sourceOmegaPixelCoordY(i),c);
-%         sourceMaskNeighbour2 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i)+1,sourceOmegaPixelCoordY(i),c);
-%         sourceMaskNeighbour3 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)-1,c);
-%         sourceMaskNeighbour4 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)+1,c);
-%         importingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c)=4*sourceMaskCentralPixel-(sourceMaskNeighbour1+sourceMaskNeighbour2+sourceMaskNeighbour3+sourceMaskNeighbour4);
-%     end
-% end
-
-laplacianFilterD4 = [0 -1 0; -1 4 -1; 0 -1 0];
-%laplacianFilterD8 = [-1 -1 -1; -1 8 -1; -1,-1,-1];
-importingGradients = imfilter((sourceImage), laplacianFilterD4, 'replicate');
+importingGradients = zeros(size(sourceImage));
+for c = 1: channel
+    for i = 1:size(omegaPixelCoordX)
+        sourceMaskCentralValue = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour1Value = sourceImage(sourceOmegaPixelCoordX(i)-1,sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour2Value = sourceImage(sourceOmegaPixelCoordX(i)+1,sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour3Value = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)-1,c);
+        sourceMaskNeighbour4Value = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)+1,c);
+        importingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c)=4*sourceMaskCentralValue-(sourceMaskNeighbour1Value+sourceMaskNeighbour2Value+sourceMaskNeighbour3Value+sourceMaskNeighbour4Value);
+    end
+end
 
 %% Construct Matrix b with Importing Gradients
 gridSize = length(omegaPixelCoordX);
@@ -96,22 +90,22 @@ for c=1:channel
     b = zeros(gridSize,1);
     singleChannelResult = targetImage(:,:,c);
     for i = 1:gridSize
-        if(boundaryRegion(omegaPixelCoordX(i)-1,omegaPixelCoordY(i)) == 1)
-            % if up of pi is in boundary
-            b(i) = b(i) + targetImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i),c);
-        end
-        if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)+1) == 1)
-            % if right of pi is in boundary
-            b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1,c);
-        end
-        if(boundaryRegion(omegaPixelCoordX(i)+1,omegaPixelCoordY(i)) == 1)
-            % if down of pi is in boundary
-            b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i),c);
-        end
+         % Boundary on left side
         if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)-1) == 1)
-            % if left of pi is in boundary
             b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)-1,c);
         end
+        % Boundary on right side
+        if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)+1) == 1)
+            b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1,c);
+        end
+         % Boundary on top side
+        if(boundaryRegion(omegaPixelCoordX(i)-1,omegaPixelCoordY(i)) == 1)
+            b(i) = b(i) + targetImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i),c);
+        end
+        % Boundary on bottom side
+        if(boundaryRegion(omegaPixelCoordX(i)+1,omegaPixelCoordY(i)) == 1)
+            b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i),c);
+        end 
         b(i) = b(i) + importingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
     end
     
@@ -124,8 +118,8 @@ for c=1:channel
     result(:,:,c) = singleChannelResult;
 end
 
+%% Output
 figure();
 imshow(result/255);
 title("Importing Gradients Result");
-
 end

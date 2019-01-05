@@ -1,4 +1,6 @@
 %% Task 4: Image Editing
+clear;
+clc;
 sourceImage1 = imread("./images/falcon.jpg");
 sourceImage2 = imread("./images/jet.jpg");
 sourceImage3 = imread("./images/blimp.jpg");

@@ -23,7 +23,6 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 
 % Generate the mask for selected position
 targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
-%targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 %targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %% Define Boundary and Omega
@@ -49,7 +48,8 @@ end
 
 % Mask region excluding the boundary - Omega(Target)
 omega = targetMaskRegion;
-omegaPixelCoords = find(omega);
+%omegaPixelCoords = find(omega);
+%result(omegaPixelCoords)=0;
 for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
@@ -62,32 +62,32 @@ for i = 1:size(sourceBoundaryCoordX)
 end
 [sourceOmegaPixelCoordX,sourceOmegaPixelCoordY] = find(sourceOmega);
 
-result(omegaPixelCoords)=0;
 %% Construct Matrix A
 omegaPixelCoords = find(omega);
+result(omegaPixelCoords)=0;
 omegaPixelOrder = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
     omegaPixelOrder(omegaPixelCoords(i))=i;
 end
-disp("Efficiency:")
-tic
 A = delsq(omegaPixelOrder);
-toc
+
 %% Mixing Gradients
 mixingGradients = zeros(size(sourceImage));
 for c = 1: channel
     for i = 1:size(omegaPixelCoordX)
-        targetMaskCentralPixel = targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i),c); 
-        targetMaskNeighbour1 = targetMaskCentralPixel - targetImage(omegaPixelCoordX(i)-1, omegaPixelCoordY(i),c);
-        targetMaskNeighbour2 = targetMaskCentralPixel - targetImage(omegaPixelCoordX(i)+1, omegaPixelCoordY(i),c);
-        targetMaskNeighbour3 = targetMaskCentralPixel - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
-        targetMaskNeighbour4 = targetMaskCentralPixel - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
+        %V_p
+        targetMaskCentralValue = targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i),c); 
+        targetMaskNeighbour1 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)-1, omegaPixelCoordY(i),c);
+        targetMaskNeighbour2 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)+1, omegaPixelCoordY(i),c);
+        targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
+        targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
 
-        sourceMaskCentralPixel = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
-        sourceMaskNeighbour1 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i)-1,sourceOmegaPixelCoordY(i),c);
-        sourceMaskNeighbour2 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i)+1,sourceOmegaPixelCoordY(i),c);
-        sourceMaskNeighbour3 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)-1,c);
-        sourceMaskNeighbour4 = sourceMaskCentralPixel - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)+1,c);
+        %V_q
+        sourceMaskCentralValue = sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour1 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i)-1,sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour2 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i)+1,sourceOmegaPixelCoordY(i),c);
+        sourceMaskNeighbour3 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)-1,c);
+        sourceMaskNeighbour4 = sourceMaskCentralValue - sourceImage(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i)+1,c);
 
         if abs(targetMaskNeighbour1) < abs(sourceMaskNeighbour1)
             neighbour1 = sourceMaskNeighbour1;
@@ -112,7 +112,7 @@ for c = 1: channel
         else
             neighbour4 = targetMaskNeighbour4;
         end   
-        mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c) = neighbour1+neighbour2+neighbour3+neighbour4; 
+        mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c) = neighbour1 + neighbour2 + neighbour3 + neighbour4; 
     end
 end
 
@@ -138,7 +138,6 @@ for c=1:channel
         if(boundaryRegion(omegaPixelCoordX(i)+1,omegaPixelCoordY(i)) == 1)
             b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i),c);
         end 
-        %b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i),c) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)-1,c)+ targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1,c)+ targetImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i),c);
         b(i) = b(i) + mixingGradients(sourceOmegaPixelCoordX(i),sourceOmegaPixelCoordY(i),c);
     end
 

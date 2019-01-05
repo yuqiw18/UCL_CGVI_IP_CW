@@ -4,12 +4,12 @@ clc;
 
 % Load the image
 sourceImage = double(rgb2gray(imread("./images/portrait.jpg")));
-targetImage = sourceImage;
+result = sourceImage;
 
 % Return the binary mask
 maskRegion = roipoly(sourceImage/255);
 
-% Get the boundary coordinate and region - D.Omega
+% Get the boundary coordinate and region - Diff.Omega
 boundary = bwboundaries(maskRegion);
 boundaryCoords = cell2mat(boundary);
 boundaryCoordX = boundaryCoords(:,1);
@@ -24,17 +24,13 @@ omega = maskRegion;
 for i = 1:size(boundaryCoordX)
     omega(boundaryCoordX(i),boundaryCoordY(i))=0;
 end
-
-% Now construct the linear function
 [omegaPixelCoordX, omegaPixelCoordY] = find(omega);
-gridSize = length(omegaPixelCoordX);
+omegaPixelCoords = find(omega);
 
-% Preallocate A and b
-A = sparse(gridSize,gridSize,0);
-b = zeros(gridSize,1);
+% Remove the region from the source image
+result(omegaPixelCoords)=0;
 
 %% Construct A: Laplacian with Built-in Function
-omegaPixelCoords = find(omega);
 omegaPixelOrder = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
     omegaPixelOrder(omegaPixelCoords(i))=i;
@@ -45,31 +41,35 @@ A = delsq(omegaPixelOrder);
 toc
 
 %% Construct b: Boundary Conditions
+gridSize = length(omegaPixelCoordX);
+b = zeros(gridSize,1);
 for i = 1: gridSize
     % Boundary on left side
     if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)-1) == 1)
-        b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)-1);
+        b(i) = b(i) + sourceImage(omegaPixelCoordX(i),omegaPixelCoordY(i)-1);
     end
     % Boundary on right side
     if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)+1) == 1)
-        b(i) = b(i) + targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1);
+        b(i) = b(i) + sourceImage(omegaPixelCoordX(i),omegaPixelCoordY(i)+1);
     end
      % Boundary on top side
     if(boundaryRegion(omegaPixelCoordX(i)-1,omegaPixelCoordY(i)) == 1)
-        b(i) = b(i) + targetImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i));
+        b(i) = b(i) + sourceImage(omegaPixelCoordX(i)-1,omegaPixelCoordY(i));
     end
     % Boundary on bottom side
     if(boundaryRegion(omegaPixelCoordX(i)+1,omegaPixelCoordY(i)) == 1)
-        b(i) = b(i) + targetImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i));
+        b(i) = b(i) + sourceImage(omegaPixelCoordX(i)+1,omegaPixelCoordY(i));
     end 
 end
 
 %% Solve the equation
 x = A\b;
 
+% Fill in the results
 for i = 1:gridSize
-    targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i))=x(i);
+    result(omegaPixelCoordX(i),omegaPixelCoordY(i))=x(i);
 end
 
 figure;
-imshow(targetImage/255);
+imshow(result/255);
+title("Guided Interpolation");
