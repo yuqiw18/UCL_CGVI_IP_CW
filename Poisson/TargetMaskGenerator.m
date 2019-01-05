@@ -1,4 +1,5 @@
-%% Manual Mask Generation for Correcting ROI Shifting Errors: Pixel Number Mismatching
+%% Manual Mask Generation for Correcting ROI Shifting Errors: Pixel Mismatching
+% For details please refer to ImporingGradients.m Image Setup last step
 function targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY)
 warning('off','all')
 
@@ -15,6 +16,10 @@ sourceMaskRegion = [leftRegion sourceMaskRegion];
 [~,height]= size(sourceMaskRegion);
 topRegion = zeros(round(targetPosY),height);
 sourceMaskRegion = [topRegion;sourceMaskRegion];
+
+% No need to make the size of mask exactly same as the target image
+% What is required here is to make sure that the target mask region has correct coverage of
+% pixels
 
 % Convert to logical for boundary operations
 targetMaskRegion = logical(sourceMaskRegion);

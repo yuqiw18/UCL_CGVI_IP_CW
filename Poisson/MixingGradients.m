@@ -2,28 +2,27 @@
 function result = MixingGradients(sourceImageRaw, targetImageRaw, rgbMode)
 %% Image Setup
 if (rgbMode == false)
-    sourceImage = double(rgb2gray(sourceImageRaw));
-    targetImage = double(rgb2gray(targetImageRaw));  
+    sourceImage = im2double(rgb2gray(sourceImageRaw));
+    targetImage = im2double(rgb2gray(targetImageRaw));  
 else
-    sourceImage = double(sourceImageRaw);
-    targetImage = double(targetImageRaw);  
+    sourceImage = im2double(sourceImageRaw);
+    targetImage = im2double(targetImageRaw);  
 end
 
 result = targetImage;
 [~,~,channel] = size(result);
 
 % Select mask region
-[sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY]= roipoly(sourceImage/255);
+[sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY]= roipoly(sourceImage);
 
 % Select position
 figure;
-imshow(targetImage/255);
+imshow(targetImage);
 title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
 % Generate the mask for selected position
 targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
-%targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask
@@ -62,7 +61,7 @@ for i = 1:size(sourceBoundaryCoordX)
 end
 [sourceOmegaPixelCoordX,sourceOmegaPixelCoordY] = find(sourceOmega);
 
-%% Construct Matrix A
+%% Construct Matrix A: Laplacian with Built-in Discrete Laplacian Function
 omegaPixelCoords = find(omega);
 result(omegaPixelCoords)=0;
 omegaPixelOrder = zeros(size(omega));
@@ -152,6 +151,6 @@ end
 
 %% Output
 figure();
-imshow(result/255);
+imshow(result);
 title("Mixing Gradients Result");
 end

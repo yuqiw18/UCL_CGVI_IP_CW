@@ -30,15 +30,12 @@ omegaPixelCoords = find(omega);
 % Remove the region from the source image
 result(omegaPixelCoords)=0;
 
-%% Construct A: Laplacian with Built-in Function
+%% Construct Matrix A: Laplacian with Built-in Discrete Laplacian Function
 omegaPixelOrder = zeros(size(omega));
 for i = 1:size(omegaPixelCoords)
     omegaPixelOrder(omegaPixelCoords(i))=i;
 end
-disp('Efficiency - delsq()');
-tic
 A = delsq(omegaPixelOrder);
-toc
 
 %% Construct b: Boundary Conditions
 gridSize = length(omegaPixelCoordX);
