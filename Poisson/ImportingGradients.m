@@ -22,15 +22,21 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
 % Generate the mask for selected position
-targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
+targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, targetImage, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
 
 % Shifting a region to new position produces errors: New regions may have
 % more or less pixels which leads to pixel mismatching for later operation.
 % Any change to the coordX and coordY has a chance to give such errors,
 % 1. Simply shift 10 units to the bottom and right
-% targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX+10,sourceMaskRegionCoordY+10);
+% targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX,sourceMaskRegionCoordY);
 % 2. ...Or even more complicated shifting
 % targetMaskRegion = roipoly(targetImage/255,sourceMaskRegionCoordX-min(sourceMaskRegionCoordX)+targetPosX,sourceMaskRegionCoordY-min(sourceMaskRegionCoordY)+targetPosY);
+% 3. ...Or even process the value separatly
+% xCenter = (min(sourceMaskRegionCoordX)+max(sourceMaskRegionCoordX))/2;
+% yCenter = (min(sourceMaskRegionCoordY)+max(sourceMaskRegionCoordY))/2;
+% targetMaskRegionCoordX = sourceMaskRegionCoordX - xCenter + targetPosY;
+% targetMaskRegionCoordY = sourceMaskRegionCoordY - yCenter + targetPosX;
+% targetMaskRegion = roipoly(targetImage/255,targetMaskRegionCoordX,targetMaskRegionCoordY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask - Diff.Omega

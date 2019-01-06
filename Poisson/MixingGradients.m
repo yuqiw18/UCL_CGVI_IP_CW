@@ -22,7 +22,7 @@ title('Pick a location to paste the selected region.(Pivot: Top-Left)');
 [targetPosX, targetPosY] = getpts;
 
 % Generate the mask for selected position
-targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
+targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, targetImage, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY);
 
 %% Define Boundary and Omega
 % Boundary of Target Image Mask
@@ -114,7 +114,7 @@ end
 gridSize = length(omegaPixelCoordX);
 for c=1:channel
     b = zeros(gridSize,1);
-    singleChannelResult = targetImage(:,:,c);
+    singleChannelResult = targetImage(:,:,c);  
     for i = 1:gridSize
          % Boundary on left side
         if(boundaryRegion(omegaPixelCoordX(i),omegaPixelCoordY(i)-1) == 1)
