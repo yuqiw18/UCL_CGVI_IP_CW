@@ -81,27 +81,28 @@ if (editingMode == "TF")
 end
 
 %% Local Illumination Changes
-if (editingMode == "LIC")
-    V = zeros(size(sourceImage));
-    alpha = 0.2;
-    beta = 0.2;
-    for c = 1: channel
-        for i = 1:size(omegaPixelCoordX)     
-            targetMaskCentralValue = targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i),c); 
-            targetMaskNeighbour1 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)-1, omegaPixelCoordY(i),c);
-            targetMaskNeighbour2 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)+1, omegaPixelCoordY(i),c);
-            targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
-            targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
-
-            v1 = (alpha^beta)*(abs(targetMaskNeighbour1))^(-beta)* targetMaskNeighbour1;
-            v2 = (alpha^beta)*(abs(targetMaskNeighbour2))^(-beta)* targetMaskNeighbour2;
-            v3 = (alpha^beta)*(abs(targetMaskNeighbour3))^(-beta)* targetMaskNeighbour3;
-            v4 = (alpha^beta)*(abs(targetMaskNeighbour4))^(-beta)* targetMaskNeighbour4;
-            
-            V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = v1 + v2 + v3 + v4; 
-        end
-    end
-end
+% *Not Working*
+% if (editingMode == "LIC")
+%     V = zeros(size(sourceImage));
+%     alpha = 0.2;
+%     beta = 0.2;
+%     for c = 1: channel
+%         for i = 1:size(omegaPixelCoordX)     
+%             targetMaskCentralValue = targetImage(omegaPixelCoordX(i),omegaPixelCoordY(i),c); 
+%             targetMaskNeighbour1 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)-1, omegaPixelCoordY(i),c);
+%             targetMaskNeighbour2 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i)+1, omegaPixelCoordY(i),c);
+%             targetMaskNeighbour3 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)-1,c);
+%             targetMaskNeighbour4 = targetMaskCentralValue - targetImage(omegaPixelCoordX(i), omegaPixelCoordY(i)+1,c);
+% 
+%             v1 = (alpha^beta)*(abs(targetMaskNeighbour1))^(-beta)* targetMaskNeighbour1;
+%             v2 = (alpha^beta)*(abs(targetMaskNeighbour2))^(-beta)* targetMaskNeighbour2;
+%             v3 = (alpha^beta)*(abs(targetMaskNeighbour3))^(-beta)* targetMaskNeighbour3;
+%             v4 = (alpha^beta)*(abs(targetMaskNeighbour4))^(-beta)* targetMaskNeighbour4;
+%             
+%             V(omegaPixelCoordX(i),omegaPixelCoordY(i),c) = v1 + v2 + v3 + v4; 
+%         end
+%     end
+% end
 
 %% Construct Matrix b
 for c=1:channel
