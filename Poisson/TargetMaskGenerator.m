@@ -1,6 +1,6 @@
 %% Manual Mask Generation for 
 % 1. Correcting ROI Shifting Errors: Pixel Mismatching
-%For details please refer to ImporingGradients.m Image Setup last step
+% For details please refer to ImportingGradients.m Image Setup last step
 % 2. Relocating Mask Center
 % 3. Checking Boundaries
 function targetMaskRegion = TargetMaskGenerator(sourceMaskRegion, targetImage, sourceMaskRegionCoordX, sourceMaskRegionCoordY, targetPosX, targetPosY)
